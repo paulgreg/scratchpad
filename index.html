@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scratchpad</title>
+<meta name="robots" content="index, follow"/>
+<meta name="author" content="Gr&eacute;gory Paul"/>
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0, user-scalable=no" />
+<style>
+*           { box-sizing: border-box; margin: 0; padding: 0; }
+body        { font-family: sans-serif; background-color: #FFEFD6; }
+div         { position: absolute; top: 0; right: 0; left: 0; bottom: 50px; margin: 6px 4px 0 4px; }
+h1          { display: inline-block; width: calc(100% - 200px); vertical-align: top; }
+h1 input    { border: 0; font-size: 26px; height: 26px; width: 100%; background-color: #FFEFD6; border-bottom: 1px dashed grey; }
+button      { padding: 0 2px; background-color: #FFCD8E; border: 4px solid #FFBE8E; border-radius: 50%; }
+textarea    { position: absolute; top: 50px; bottom: 0; width: 100%; font-size: 18px; background-color: #FFF7ED; padding: 4px; }
+</style>
+</head>
+<body>
+<div>
+    <h1><input type="text" value="" /></h1>
+    <button id="empty" title="Empty text"> 
+        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px" height="32px" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve">
+            <g id="CIRCLE__x2F__DELETE_1_" enable-background="new    ">
+                <g id="CIRCLE__x2F__DELETE">
+                    <g>
+                        <path d="M32,0C14.327,0,0,14.327,0,32s14.327,32,32,32s32-14.327,32-32S49.673,0,32,0z M32,58C17.641,58,6,46.359,6,32
+            C6,17.64,17.641,6,32,6c14.359,0,26,11.64,26,26C58,46.359,46.359,58,32,58z M46,21c0-1.657-1.343-3-3-3
+            c-0.828,0-1.578,0.336-2.121,0.879L32,27.758l-8.879-8.879C22.579,18.336,21.828,18,21,18c-1.657,0-3,1.343-3,3
+            c0,0.828,0.336,1.578,0.879,2.121L27.757,32l-8.879,8.879C18.336,41.422,18,42.172,18,43c0,1.657,1.343,3,3,3
+            c0.828,0,1.579-0.336,2.121-0.879L32,36.243l8.879,8.879C41.422,45.664,42.172,46,43,46c1.657,0,3-1.343,3-3
+            c0-0.828-0.336-1.578-0.879-2.121L36.243,32l8.879-8.878C45.664,22.578,46,21.829,46,21z" />
+                    </g>
+                </g>
+            </g>
+        </svg>
+    </button>
+    <button id="add" title="New scratchpad"> 
+        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px" height="32px" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve">
+        <g id="CIRCLE__x2F__PLUS_1_" enable-background="new    ">
+            <g id="CIRCLE__x2F__PLUS">
+                <g>
+                    <path d="M45,29H35V19c0-1.657-1.343-3-3-3s-3,1.343-3,3v10H19c-1.657,0-3,1.343-3,3s1.343,3,3,3h10v10c0,1.657,1.343,3,3,3
+                        s3-1.343,3-3V35h10c1.657,0,3-1.343,3-3S46.657,29,45,29z M32,0C14.327,0,0,14.327,0,32s14.327,32,32,32s32-14.327,32-32
+                        S49.673,0,32,0z M32,58C17.641,58,6,46.359,6,32C6,17.64,17.641,6,32,6c14.359,0,26,11.641,26,26C58,46.359,46.359,58,32,58z"/>
+                </g>
+            </g>
+        </g>
+        </svg>
+    </button>
+    <button id="remove" title="Remove scratchpad"> 
+        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px" height="32px" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve">
+        <g id="CIRCLE__x2F__MINUS_1_" enable-background="new    ">
+            <g id="CIRCLE__x2F__MINUS">
+                <g>
+                    <path d="M45,29H19c-1.657,0-3,1.343-3,3s1.343,3,3,3h26c1.657,0,3-1.343,3-3S46.657,29,45,29z M32,0C14.327,0,0,14.327,0,32
+                        s14.327,32,32,32s32-14.327,32-32S49.673,0,32,0z M32,58C17.641,58,6,46.359,6,32C6,17.64,17.641,6,32,6
+                        c14.359,0,26,11.641,26,26C58,46.359,46.359,58,32,58z"/>
+                </g>
+            </g>
+        </g>
+        </svg>
+    </button>
+    <button id="change" title="Change scratchpad"> 
+        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px" height="32px" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve">
+        <g id="CIRCLE__x2F__UP_1_" enable-background="new    ">
+            <g id="CIRCLE__x2F__UP">
+                <g>
+                    <path d="M43.23,26.993l-9-10L34.223,17c-0.55-0.61-1.336-1-2.223-1c-0.885,0-1.672,0.391-2.222,1l-0.008-0.007l-9,10L20.778,27
+                        C20.3,27.532,20,28.229,20,29c0,1.657,1.343,3,3,3c0.885,0,1.673-0.391,2.222-1l0.008,0.007L29,26.818V45c0,1.657,1.343,3,3,3
+                        s3-1.343,3-3V26.818l3.77,4.189L38.777,31c0.55,0.61,1.338,1,2.223,1c1.657,0,3-1.343,3-3c0-0.772-0.3-1.468-0.777-2
+                        L43.23,26.993z M32,0C14.327,0,0,14.327,0,32s14.327,32,32,32s32-14.327,32-32S49.673,0,32,0z M32,58C17.641,58,6,46.359,6,32
+                        C6,17.64,17.641,6,32,6c14.359,0,26,11.64,26,26C58,46.359,46.359,58,32,58z"/>
+                </g>
+            </g>
+        </g>
+        </svg>
+    </button>
+</div>
+<textarea>
+</textarea>
+<script>
+
+const title = document.querySelector('h1 input')
+const textarea = document.querySelector('textarea')
+const emptyBtn = document.querySelector('#empty')
+
+emptyBtn.addEventListener('click', () => {
+    const sure = confirm('Empty text ?')
+    if (sure) {
+        textarea.value = ''
+        save()
+    }
+}, false)
+
+let lastTimeout
+function debounce(fn) {
+    return () => {
+        clearTimeout(lastTimeout)
+        lastTimeout = setTimeout(fn, 250)
+    }
+}
+
+function save () {
+    data.items[data.lastIdx] = {
+        title: title.value,
+        text: textarea.value
+    }
+    console.log('save', data)
+    localStorage.setItem('data', JSON.stringify(data))
+}
+const debouncedSave = debounce(save)
+textarea.addEventListener('keyup', debouncedSave, false)
+title.addEventListener('keyup', debouncedSave, false)
+
+let data = {
+    lastIdx: 0,
+    items: [
+        { 
+            title: 'Scratchpad', 
+            text: `
+
+Type your wonderful idea or grocery list here. 
+
+Notes you type here will be stored until next time (or until you flush your browser’s cache).`
+        }
+    ]
+}
+
+function setContent(idx) {
+    data.lastIdx = idx
+    title.value = data.items[data.lastIdx].title
+    textarea.value = data.items[data.lastIdx].text
+}
+
+function load () {
+    const savedData = JSON.parse(localStorage.getItem('data'))
+    if (savedData && savedData.items && savedData.items.length > 0) {
+        data = savedData
+        setContent(data.lastIdx)
+    } else {
+        setContent(data.lastIdx)
+    }
+}
+load()
+</script>
+</body>
+</html>
