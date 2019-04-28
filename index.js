@@ -57,6 +57,7 @@ function setContent(idx) {
     data.lastIdx = idx
     title.value = data.items[data.lastIdx].title
     textarea.value = data.items[data.lastIdx].text
+    textarea.focus()
 }
 
 function load () {
