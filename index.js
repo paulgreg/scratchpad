@@ -1,16 +1,10 @@
 const title = document.querySelector('h1 input')
 const textarea = document.querySelector('textarea')
-const emptyBtn = document.querySelector('#empty')
 const savingIcon = document.querySelector('#saving')
 const addBtn = document.querySelector('#add')
-
-emptyBtn.addEventListener('click', () => {
-    const sure = confirm('Empty text ?')
-    if (sure) {
-        textarea.value = ''
-        save()
-    }
-}, false)
+const changeBtn = document.querySelector('#change')
+const list = document.querySelector('#list ol')
+const removeIcon = document.querySelector('#removeIcon').innerHTML
 
 let lastTimeout
 function debounce(fn) {
@@ -57,6 +51,7 @@ function setContent(idx) {
     data.lastIdx = idx
     title.value = data.items[data.lastIdx].title
     textarea.value = data.items[data.lastIdx].text
+    hideList()
     textarea.focus()
 }
 
@@ -80,3 +75,37 @@ function addNewItem () {
 }
 
 addBtn.addEventListener('click', addNewItem, false)
+
+function hideList() {
+    document.body.classList.remove('list')
+    emptyList()
+}
+function emptyList() {
+    while(list.firstChild) {
+        list.removeChild(list.firstChild)
+    }
+}
+function toggleList () {
+    if (document.body.classList.contains('list')) {
+        hideList()
+    } else {
+        emptyList()
+        data.items.forEach(({title, text}, idx) => {
+            const li = document.createElement('li')
+            const aItem = document.createElement('a')
+            aItem.innerText = title
+            aItem.addEventListener('click', () => { setContent(idx)})
+            const aRemove = document.createElement('a')
+            aRemove.innerHTML = removeIcon
+            aRemove.classList.add('remove')
+            const span = document.createElement('span')
+            span.innerText = text.length ? `(${text.length} chars)` : '(empty)'
+            li.appendChild(aItem)
+            li.appendChild(span)
+            li.appendChild(aRemove)
+            list.appendChild(li)
+        })
+        document.body.classList.add('list')
+    }
+}
+changeBtn.addEventListener('click', toggleList, false)
