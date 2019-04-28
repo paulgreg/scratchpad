@@ -7,7 +7,7 @@ const list = document.querySelector('#list ol')
 const removeIcon = document.querySelector('#removeIcon').innerHTML
 
 let lastTimeout
-function debounce(fn) {
+function debounce (fn) {
     return () => {
         clearTimeout(lastTimeout)
         lastTimeout = setTimeout(fn, 250)
@@ -19,14 +19,18 @@ function save () {
         title: title.value,
         text: textarea.value
     }
-    console.log('save', data)
-    localStorage.setItem('data', JSON.stringify(data))
+    persistToLocalStorage()
     setSaveIcon()
     
 }
 
+function persistToLocalStorage () {
+    console.log('persistToLocalStorage', data)
+    localStorage.setItem('data', JSON.stringify(data))
+}
+
 let timeoutSaveIcon
-function setSaveIcon() {
+function setSaveIcon () {
     savingIcon.classList.add('saved')
     timeoutSaveIcon = setTimeout(() =>savingIcon.classList.remove('saved'), 500)
 }
@@ -47,7 +51,7 @@ Notes you type here will be stored until next time (or until you flush your brow
     } ]
 }
 
-function setContent(idx) {
+function setContent (idx) {
     data.lastIdx = idx
     title.value = data.items[data.lastIdx].title
     textarea.value = data.items[data.lastIdx].text
@@ -55,8 +59,12 @@ function setContent(idx) {
     textarea.focus()
 }
 
+function retrieveFromLocalStorage () {
+    return JSON.parse(localStorage.getItem('data'))
+}
+
 function load () {
-    const savedData = JSON.parse(localStorage.getItem('data'))
+    const savedData = retrieveFromLocalStorage()
     if (savedData && savedData.items && savedData.items.length > 0) {
         data = savedData
         setContent(data.lastIdx)
@@ -68,7 +76,7 @@ load()
 
 function addNewItem () {
     const newIdx = data.items.length
-    data.items.push({ title: `Scratchpad ${newIdx}`, text: '' })
+    data.items.push({ title: 'New note', text: '' })
     data.lastIdx = newIdx
     setContent(newIdx)
     save()
@@ -76,36 +84,53 @@ function addNewItem () {
 
 addBtn.addEventListener('click', addNewItem, false)
 
-function hideList() {
+function removeItem (idx) {
+    const title = data.items[idx].title
+    const sure = confirm(`Are you sure to delete « ${title} » ?`)
+    if (sure) {
+        console.log('before', JSON.stringify(data.items))
+        data.items.splice(idx, 1)
+        console.log('after', JSON.stringify(data.items))
+        data.lastIdx = 0
+        persistToLocalStorage()
+        buildList()
+    } 
+}
+function hideList () {
     document.body.classList.remove('list')
     emptyList()
 }
-function emptyList() {
+function emptyList () {
     while(list.firstChild) {
         list.removeChild(list.firstChild)
     }
 }
-function toggleList () {
-    if (document.body.classList.contains('list')) {
-        hideList()
-    } else {
-        emptyList()
-        data.items.forEach(({title, text}, idx) => {
-            const li = document.createElement('li')
-            const aItem = document.createElement('a')
-            aItem.innerText = title
-            aItem.addEventListener('click', () => { setContent(idx)})
+function buildList () {
+    emptyList()
+    const addRemoveBtn = data.items.length > 1
+    data.items.forEach(({title, text}, idx) => {
+        const li = document.createElement('li')
+        const aItem = document.createElement('a')
+        aItem.innerText = title
+        aItem.addEventListener('click', () => { setContent(idx)})
+        const span = document.createElement('span')
+        span.innerText = text.length ? `(${text.length} chars)` : '(empty)'
+        li.appendChild(aItem)
+        li.appendChild(span)
+        if (addRemoveBtn) {
             const aRemove = document.createElement('a')
             aRemove.innerHTML = removeIcon
             aRemove.classList.add('remove')
-            const span = document.createElement('span')
-            span.innerText = text.length ? `(${text.length} chars)` : '(empty)'
-            li.appendChild(aItem)
-            li.appendChild(span)
+            aRemove.addEventListener('click', () => { removeItem(idx)})
             li.appendChild(aRemove)
-            list.appendChild(li)
-        })
-        document.body.classList.add('list')
-    }
+        }
+        list.appendChild(li)
+    })
+    document.body.classList.add('list')
+}
+function toggleList () {
+    document.body.classList.contains('list') ? 
+        hideList() : 
+        buildList()
 }
 changeBtn.addEventListener('click', toggleList, false)
