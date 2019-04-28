@@ -6,6 +6,10 @@
 <meta name="robots" content="index, follow"/>
 <meta name="author" content="Gr&eacute;gory Paul"/>
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0, user-scalable=no" />
+<meta name="description" content="Type your notes">
+<meta name="theme-color" content="#FFEFD6">
+<link rel="manifest" href="manifest.json">
+<link rel="shortcut icon" href="pad-128.png">
 <style>
 *           { box-sizing: border-box; margin: 0; padding: 0; }
 body        { font-family: sans-serif; background-color: #FFEFD6; }
@@ -113,18 +117,18 @@ const debouncedSave = debounce(save)
 textarea.addEventListener('keyup', debouncedSave, false)
 title.addEventListener('keyup', debouncedSave, false)
 
-let data = {
-    lastIdx: 0,
-    items: [
-        { 
-            title: 'Scratchpad', 
-            text: `
+const defaultItem = { 
+    title: 'Scratchpad', 
+    text: `
 
 Type your wonderful idea or grocery list here. 
 
 Notes you type here will be stored until next time (or until you flush your browser’s cache).`
-        }
-    ]
+}
+
+let data = {
+    lastIdx: 0,
+    items: [ defaultItem ]
 }
 
 function setContent(idx) {
