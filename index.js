@@ -47,7 +47,13 @@ let data = {
 
 Type your wonderful idea or grocery list here. 
 
-Notes you type here will be stored until next time (or until you flush your browser’s cache).`
+Notes you type here will be stored locally, in the browser local storage.
+
+Keep in mind that flushing your browser’s cache (site preferences to be more precise) will remove them.
+
+Application source code is available on https://github.com/paulgreg/scratchpad. 
+You can easily host it yourself by cloning the project on your web server.
+`
     } ]
 }
 
