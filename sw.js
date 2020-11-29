@@ -1,19 +1,21 @@
 const CACHE = 'network-or-cache'
-const TIMEOUT = 50
+const TIMEOUT = 1000
 
-self.addEventListener('fetch', evt => {
-  evt.respondWith(fromNetwork(evt.request, TIMEOUT).catch(() => {
-    return fromCache(evt.request)
-  }))
+self.addEventListener('fetch', (evt) => {
+  evt.respondWith(
+    fromNetwork(evt.request, TIMEOUT).catch(() => {
+      return fromCache(evt.request)
+    })
+  )
 })
 
 function fromNetwork(request, timeout) {
   return new Promise((fulfill, reject) => {
     const timeoutId = setTimeout(reject, timeout)
-    fetch(request).then(response => {
+    fetch(request).then((response) => {
       clearTimeout(timeoutId)
 
-      if(!response || response.status !== 200 || request.method !== 'GET') {
+      if (!response || response.status !== 200 || request.method !== 'GET') {
         return fulfill(response)
       }
 
@@ -23,10 +25,9 @@ function fromNetwork(request, timeout) {
       // to clone it so we have two streams.
       const responseToCache = response.clone()
 
-      caches.open(CACHE)
-        .then(cache => {
-          cache.put(request, responseToCache);
-        })
+      caches.open(CACHE).then((cache) => {
+        cache.put(request, responseToCache)
+      })
 
       return fulfill(response)
     }, reject)
@@ -34,8 +35,8 @@ function fromNetwork(request, timeout) {
 }
 
 function fromCache(request) {
-  return caches.open(CACHE).then(cache => {
-    return cache.match(request).then(matching => {
+  return caches.open(CACHE).then((cache) => {
+    return cache.match(request).then((matching) => {
       return matching || Promise.reject('no-match')
     })
   })
