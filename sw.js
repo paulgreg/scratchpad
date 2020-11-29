@@ -2,18 +2,21 @@ const CACHE = 'network-or-cache'
 const TIMEOUT = 1000
 
 self.addEventListener('fetch', (evt) => {
-  evt.respondWith(
-    fromNetwork(evt.request, TIMEOUT).catch(() => {
-      return fromCache(evt.request)
-    })
-  )
+  const appOwnResources = evt.request.url.startsWith(location.origin)
+  const strategy = appOwnResources
+    ? fromNetwork(evt.request, TIMEOUT).catch(() => {
+        return fromCache(evt.request)
+      })
+    : fromNetwork(evt.request)
+  evt.respondWith(strategy)
 })
 
 function fromNetwork(request, timeout) {
   return new Promise((fulfill, reject) => {
-    const timeoutId = setTimeout(reject, timeout)
+    let timeoutId
+    if (timeout) timeoutId = setTimeout(reject, timeout)
     fetch(request).then((response) => {
-      clearTimeout(timeoutId)
+      if (timeout) clearTimeout(timeoutId)
 
       if (!response || response.status !== 200 || request.method !== 'GET') {
         return fulfill(response)
