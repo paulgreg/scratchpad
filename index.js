@@ -36,6 +36,7 @@ firebaseUi.start('#firebaseui-auth', {
   },
   signInOptions: [
     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+    firebase.auth.TwitterAuthProvider.PROVIDER_ID,
     {
       provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
       requireDisplayName: false,
