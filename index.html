@@ -33,37 +33,52 @@
       </p>
       <p>You can either store them on device or sign in to save them online.</p>
       <p>
-        If you’re store them on device, they will be stored in browser’s
+        If you store them on device, they will be stored in browser’s
         <a
           rel="noopener"
           href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
           >local storage</a
         >
-        and <strong>no data will be sent in the cloud</strong>. Keep in mind
-        however that flushing your browser’s site preferences will remove them.
+        and <strong>no data will be stored in the cloud</strong>. However, keep
+        in mind that flushing your browser’s site preferences will remove your
+        notes.
+      </p>
+      <p class="center">
+        <button id="storeLocallyButton">Store data on device</button>
       </p>
       <p>
         If you choose to sign in, you will save your notes in the cloud and be
         able to share them between multiple devices. Data are stored on a free
         <a rel="noopener" href="https://firebase.google.com/"
-          >firebase storage</a
+          >Firebase storage</a
         >
-        (a Google service).
+        (Google).
       </p>
-      <p class="center">
-        <button id="storeLocallyButton">Store data on device</button>
-      </p>
-      <p class="choice center">or store them online by sign in :</p>
       <div id="firebaseui-auth"></div>
       <p>
-        That application is free and open source. Code is available on
+        Be aware that notes are stored by account type without any link between
+        them. That means that If you connect via Google, save a note and then
+        connect with Twitter, note won’t be the same. You’ll have one version
+        with Google and another version with Twitter.
+      </p>
+      <p>
+        That application is free and open source. It’s not a commercial product,
+        only a « scratch your own itch » app. Code is available on
         <a rel="noopener" href="https://github.com/paulgreg/scratchpad"
           >github</a
         >.
       </p>
       <p>
-        You can host it yourself by cloning the project on your web server and
-        creating your own Firebase account.
+        If you’re concerned about privacy and security, I encourage you to store
+        data on device. Also, you can host it yourself by cloning the project on
+        a web server and creating your own Firebase account.
+      </p>
+      <p>
+        More about my projects and contact informations on
+        <a href="https://paulgreg.me/">paulgreg.me</a>. According to
+        <abbr title="General Data Protection Regulation">GDPR</abbr>, you can
+        contact me if you want to get or remove your data (only if you had sign
+        in of course, I won’t have any data if they’re stored on your device).
       </p>
     </div>
     <div class="main">
