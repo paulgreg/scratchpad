@@ -123,17 +123,30 @@ function retrieveFromFirebase() {
     })
 }
 
+function watchFromFirebase(cb) {
+  if (firebaseUserUID && firebaseDb) {
+    firebase
+      .database()
+      .ref(`/scratchpad/${firebaseUserUID}`)
+      .on('value', (snapshot) => {
+        const d = snapshot.val()
+        console.log('watchFromFirebase', d)
+        if (d) cb(d)
+      })
+  }
+}
+
 function load() {
   ;(firebaseUserUID && firebaseDb
     ? retrieveFromFirebase()
     : retrieveFromLocalStorage()
   ).then((savedData) => {
-    if (savedData && savedData.items && savedData.items.length > 0) {
-      data = savedData
-      setContent(data.lastIdx)
-    } else {
-      setContent(data.lastIdx)
-    }
+    if (savedData && savedData.items) data = savedData
+    setContent(data.lastIdx)
+  })
+  watchFromFirebase((newData) => {
+    data = newData
+    setContent(data.lastIdx)
   })
 }
 
