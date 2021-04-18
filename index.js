@@ -5,46 +5,7 @@ const addBtn = document.querySelector('#add')
 const changeBtn = document.querySelector('#change')
 const list = document.querySelector('#list ol')
 const removeIcon = document.querySelector('#removeIcon').innerHTML
-const storeLocallyButton = document.querySelector('#storeLocallyButton')
-const auth = document.querySelector('#auth')
-
-// Firebase
-let firebaseUserUID = undefined
-let firebaseDb = undefined
-
-firebase.initializeApp({
-  apiKey: 'AIzaSyDwOBJ1plRfSIe1vzAIt2CHMEuQeA46UYo',
-  authDomain: 'scratchpad-678b6.firebaseapp.com',
-  databaseURL: 'https://scratchpad-678b6.firebaseio.com',
-  projectId: 'scratchpad-678b6',
-  storageBucket: 'scratchpad-678b6.appspot.com',
-  messagingSenderId: '963940996206',
-  appId: '1:963940996206:web:7a6a4716e6a7ea78fc027f',
-})
-
-const firebaseAuth = firebase.auth()
-const firebaseUi = new firebaseui.auth.AuthUI(firebaseAuth)
-firebaseUi.start('#firebaseui-auth', {
-  callbacks: {
-    signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-      firebaseUserUID = authResult.user.uid
-      firebaseDb = firebase.database()
-      console.log('SignIn success !', 'uid', firebaseUserUID, 'db', firebaseDb)
-      hideIntroAndLoad()
-      return false
-    },
-  },
-  signInOptions: [
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.TwitterAuthProvider.PROVIDER_ID,
-    {
-      provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-      requireDisplayName: false,
-    },
-  ],
-  credentialHelper: firebaseui.auth.CredentialHelper.GOOGLE_YOLO,
-})
-// End firebase configuration
+const startButton = document.querySelector('#StartButton')
 
 let lastTimeout
 function debounce(fn, delay) {
@@ -59,7 +20,6 @@ function save() {
     title: title.value,
     text: textarea.value,
   }
-  if (firebaseUserUID && firebaseDb) persistToFirebase()
   persistToLocalStorage() // Always save to localStorage
   setSaveIcon()
 }
@@ -67,11 +27,6 @@ function save() {
 function persistToLocalStorage() {
   console.log('persistToLocalStorage', data)
   localStorage.setItem('data', JSON.stringify(data))
-}
-
-function persistToFirebase() {
-  console.log('persistToFirebase', data)
-  firebase.database().ref(`/scratchpad/${firebaseUserUID}`).set(data)
 }
 
 let timeoutSaveIcon
@@ -112,41 +67,9 @@ function retrieveFromLocalStorage() {
   return Promise.resolve(content)
 }
 
-function retrieveFromFirebase() {
-  return firebase
-    .database()
-    .ref(`/scratchpad/${firebaseUserUID}`)
-    .once('value')
-    .then((snapshot) => {
-      const content = snapshot.val()
-      console.log('retrieveFromFirebase', content)
-      return content
-    })
-}
-
-function watchFromFirebase(cb) {
-  if (firebaseUserUID && firebaseDb) {
-    firebase
-      .database()
-      .ref(`/scratchpad/${firebaseUserUID}`)
-      .on('value', (snapshot) => {
-        const d = snapshot.val()
-        console.log('watchFromFirebase', d)
-        if (d) cb(d)
-      })
-  }
-}
-
 function load() {
-  ;(firebaseUserUID && firebaseDb
-    ? retrieveFromFirebase()
-    : retrieveFromLocalStorage()
-  ).then((savedData) => {
+  retrieveFromLocalStorage().then((savedData) => {
     if (savedData && savedData.items) data = savedData
-    setContent(data.lastIdx)
-  })
-  watchFromFirebase((newData) => {
-    data = newData
     setContent(data.lastIdx)
   })
 }
@@ -218,7 +141,7 @@ const hideIntroAndLoad = () => {
   auth.style.display = 'none'
   load()
 }
-storeLocallyButton.addEventListener(
+startButton.addEventListener(
   'click',
   (e) => {
     e.preventDefault()
