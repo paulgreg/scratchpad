@@ -1,6 +1,6 @@
 # scratchpad
 
-A simple PWA to type some notes like grocery list or things to remember, stored locally in browser local storage.
+A simple PWA to type some notes like grocery list or things to remember, stored locally in browser local storage and on server (using [json-store](https://github.com/paulgreg/json-store), a simple way to store json).
 
 They will be kept until browser cache (site preference to be more precise) is flushed.
 

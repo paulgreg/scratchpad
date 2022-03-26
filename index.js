@@ -9,6 +9,7 @@ const search = document.location.search || ''
 const notebook = search.replace('?notebook=', '')
 const notebookCheck = new RegExp('^[a-zA-Z0-9]{1,12}$').test(notebook)
 const localstorageKey = `scratchpad-${notebook}`
+const saveUrl = `/json-store/scratchpad/${notebook}.json`
 
 let lastTimeout
 function debounce(fn, delay) {
@@ -24,7 +25,8 @@ function save() {
     title: title.value,
     text: textarea.value,
   }
-  persistToLocalStorage() // Always save to localStorage
+  persistToLocalStorage()
+  persistOnServer()
   setSaveIcon()
 }
 
@@ -33,13 +35,24 @@ function persistToLocalStorage() {
   localStorage.setItem(localstorageKey, JSON.stringify(data))
 }
 
+function persistOnServer() {
+  fetch(saveUrl, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+}
+
 let timeoutSaveIcon
 function setSaveIcon() {
   savingIcon.classList.add('saved')
   timeoutSaveIcon = setTimeout(() => savingIcon.classList.remove('saved'), 500)
 }
 
-const debouncedSave = debounce(save, 500)
+const debouncedSave = debounce(save, 1000)
 textarea.addEventListener('keyup', debouncedSave, false)
 textarea.addEventListener('paste', debouncedSave, false)
 title.addEventListener('keyup', debouncedSave, false)
@@ -72,11 +85,29 @@ function retrieveFromLocalStorage() {
   return Promise.resolve(content)
 }
 
+function retrieveFromServer() {
+  return fetch(saveUrl)
+    .then((response) => {
+      if (response.ok) return response.json()
+      if (response.status === 404) {
+        return {}
+      }
+    })
+    .catch((e) => console.error(e))
+}
+
 function load() {
-  retrieveFromLocalStorage().then((savedData) => {
-    if (savedData && savedData.items) data = savedData
-    setContent(data.lastIdx)
-  })
+  Promise.all([retrieveFromLocalStorage(), retrieveFromServer()]).then(
+    ([localStorageData, serverData]) => {
+      const localStorageLastSave =
+        (localStorageData && localStorageData.lastSave) || 0
+      const serverLastSave = (serverData && serverData.lastSave) || 0
+      const lastData =
+        localStorageLastSave > serverLastSave ? localStorageData : serverData
+      if (lastData && lastData.items) data = lastData
+      setContent(data.lastIdx)
+    }
+  )
 }
 
 function addNewItem() {
