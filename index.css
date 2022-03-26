@@ -57,16 +57,30 @@ a {
 .choice {
   margin-top: 0.9em;
 }
-#StartButton {
-  width: 220px;
-  height: 40px;
+.start {
   padding: 8px 16px;
   font-size: 16px;
-  border: 1px solid darkslategray;
-  background-color: #f4b400;
+  border-top: 1px solid grey;
+  border-bottom: 1px solid grey;
+  background-color: white;
+  color: black;
+}
+.start input {
+  font-size: 16px;
+  height: 40px;
+  border: 1px solid black;
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
     0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
+.start input[type='text'] {
+  width: 100px;
+  text-align: center;
+}
+.start input[type='submit'] {
+  padding: 8px;
+  background-color: orange;
+}
+
 #saving {
   fill: green;
   margin-left: 10px;

@@ -5,7 +5,10 @@ const addBtn = document.querySelector('#add')
 const changeBtn = document.querySelector('#change')
 const list = document.querySelector('#list ol')
 const removeIcon = document.querySelector('#removeIcon').innerHTML
-const startButton = document.querySelector('#StartButton')
+const search = document.location.search || ''
+const notebook = search.replace('?notebook=', '')
+const notebookCheck = new RegExp('^[a-zA-Z0-9]{1,12}$').test(notebook)
+const localstorageKey = `scratchpad-${notebook}`
 
 let lastTimeout
 function debounce(fn, delay) {
@@ -16,6 +19,7 @@ function debounce(fn, delay) {
 }
 
 function save() {
+  data.lastSave = Date.now()
   data.items[data.lastIdx] = {
     title: title.value,
     text: textarea.value,
@@ -25,8 +29,8 @@ function save() {
 }
 
 function persistToLocalStorage() {
-  console.log('persistToLocalStorage', data)
-  localStorage.setItem('data', JSON.stringify(data))
+  console.log('persistToLocalStorage', localstorageKey, data)
+  localStorage.setItem(localstorageKey, JSON.stringify(data))
 }
 
 let timeoutSaveIcon
@@ -43,6 +47,7 @@ title.addEventListener('paste', debouncedSave, false)
 
 let data = {
   lastIdx: 0,
+  lastSave: undefined,
   items: [
     {
       title: 'Scratchpad',
@@ -62,8 +67,8 @@ function setContent(idx) {
 }
 
 function retrieveFromLocalStorage() {
-  const content = JSON.parse(localStorage.getItem('data'))
-  console.log('retrieveFromLocalStorage', content)
+  const content = JSON.parse(localStorage.getItem(localstorageKey))
+  console.log('retrieveFromLocalStorage', localstorageKey, content)
   return Promise.resolve(content)
 }
 
@@ -137,15 +142,11 @@ function toggleList() {
 }
 changeBtn.addEventListener('click', toggleList, false)
 
-const hideIntroAndLoad = () => {
+const hideIntro = () => {
   auth.style.display = 'none'
+}
+
+if (notebookCheck) {
+  hideIntro()
   load()
 }
-startButton.addEventListener(
-  'click',
-  (e) => {
-    e.preventDefault()
-    hideIntroAndLoad()
-  },
-  false
-)

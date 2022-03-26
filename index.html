@@ -28,11 +28,17 @@
           rel="noopener"
           href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
           >local storage</a
-        >. <strong>No data will be stored online</strong>. However, keep in mind
-        that flushing your browser’s site preferences will remove your notes.
+        >
+        and on server.
       </p>
       <p class="center">
-        <button id="StartButton">Start to take notes</button>
+        <form class="start" method="GET" >
+          <label>Notebook : 
+            <input type="text" pattern="[a-zA-Z0-9]{1,12}" required maxlength="12" autofocus 
+              name="notebook" placeholder="Bob" title="Only letters and number, from 1 to 12 chars" />
+          </label>
+          <input type="submit" value="go" />
+        </form>
       </p>
       <p>
         That application is free and open source. It’s not a commercial product,
