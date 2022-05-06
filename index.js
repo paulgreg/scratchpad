@@ -40,6 +40,7 @@ function persistOnServer() {
     method: 'POST',
     mode: 'cors',
     headers: {
+      Authorization: `Basic ${window.authorization}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
@@ -86,7 +87,11 @@ function retrieveFromLocalStorage() {
 }
 
 function retrieveFromServer() {
-  return fetch(saveUrl)
+  return fetch(saveUrl, {
+    headers: {
+      Authorization: `Basic ${window.authorization}`,
+    },
+  })
     .then((response) => {
       if (response.ok) return response.json()
       if (response.status === 404) {
