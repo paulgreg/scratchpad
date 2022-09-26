@@ -85,9 +85,11 @@ function addNewItem() {
 addBtn.addEventListener('click', addNewItem, false)
 
 function removeItem(idx) {
-  const title = data.items[idx].title
-  const sure = confirm(`Are you sure to delete « ${title} » ?`)
-  if (sure) {
+  const item = data.items[idx]
+  if (
+    item.text.length === 0 ||
+    confirm(`Are you sure to delete « ${item.title} » ?`)
+  ) {
     console.log('before', JSON.stringify(data.items))
     data.items.splice(idx, 1)
     console.log('after', JSON.stringify(data.items))
