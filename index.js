@@ -120,7 +120,7 @@ function addNewItem() {
   data.items.push({ title: 'New note', text: '' })
   data.lastIdx = newIdx
   setContent(newIdx)
-  save()
+  debouncedSave()
 }
 
 addBtn.addEventListener('click', addNewItem, false)
@@ -135,8 +135,8 @@ function removeItem(idx) {
     data.items.splice(idx, 1)
     console.log('after', JSON.stringify(data.items))
     data.lastIdx = 0
-    persistToLocalStorage()
     buildList()
+    debouncedSave()
   }
 }
 function hideList() {
