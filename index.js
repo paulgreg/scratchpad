@@ -11,31 +11,37 @@ const notebookCheck = new RegExp('^[a-zA-Z0-9]{1,12}$').test(notebook)
 const localstorageKey = `scratchpad-${notebook}`
 const saveUrl = `/json-store/scratchpad/${notebook}.json`
 
-let lastTimeout
-function debounce(fn, delay) {
-  return () => {
-    clearTimeout(lastTimeout)
-    lastTimeout = setTimeout(fn, delay)
-  }
+const lastTimeout = {}
+
+const debounce = (fn, delay) => () => {
+  clearTimeout(lastTimeout[fn])
+  lastTimeout[fn] = setTimeout(fn, delay)
 }
 
-function save() {
-  data.lastSave = Date.now()
-  data.items[data.lastIdx] = {
-    title: title.value,
-    text: textarea.value,
-  }
+const persistSave = () => {
   persistToLocalStorage()
   persistOnServer()
   setSaveIcon()
 }
 
-function persistToLocalStorage() {
+const debouncePersistSave = debounce(persistSave, 500)
+
+const save = () => {
+  data.lastSave = Date.now()
+  data.items[data.lastIdx] = {
+    id: Date.now(),
+    title: title.value,
+    text: textarea.value,
+  }
+  debouncePersistSave()
+}
+
+const persistToLocalStorage = () => {
   console.log('persistToLocalStorage', localstorageKey, data)
   localStorage.setItem(localstorageKey, JSON.stringify(data))
 }
 
-function persistOnServer() {
+const persistOnServer = () => {
   fetch(saveUrl, {
     method: 'POST',
     mode: 'cors',
@@ -48,22 +54,24 @@ function persistOnServer() {
 }
 
 let timeoutSaveIcon
-function setSaveIcon() {
+
+const setSaveIcon = () => {
+  clearTimeout(timeoutSaveIcon)
   savingIcon.classList.add('saved')
   timeoutSaveIcon = setTimeout(() => savingIcon.classList.remove('saved'), 500)
 }
 
-const debouncedSave = debounce(save, 1000)
-textarea.addEventListener('keyup', debouncedSave, false)
-textarea.addEventListener('paste', debouncedSave, false)
-title.addEventListener('keyup', debouncedSave, false)
-title.addEventListener('paste', debouncedSave, false)
+textarea.addEventListener('keyup', save, false)
+textarea.addEventListener('paste', save, false)
+title.addEventListener('keyup', save, false)
+title.addEventListener('paste', save, false)
 
 let data = {
   lastIdx: 0,
   lastSave: undefined,
   items: [
     {
+      id: Date.now(),
       title: 'Scratchpad',
       text: `
 
@@ -72,7 +80,7 @@ Type your wonderful idea or grocery list here.`,
   ],
 }
 
-function setContent(idx) {
+const setContent = (idx) => {
   data.lastIdx = idx
   title.value = data.items[data.lastIdx].title
   textarea.value = data.items[data.lastIdx].text
@@ -80,14 +88,14 @@ function setContent(idx) {
   textarea.focus()
 }
 
-function retrieveFromLocalStorage() {
+const retrieveFromLocalStorage = () => {
   const content = JSON.parse(localStorage.getItem(localstorageKey))
   console.log('retrieveFromLocalStorage', localstorageKey, content)
   return Promise.resolve(content)
 }
 
-function retrieveFromServer() {
-  return fetch(saveUrl, {
+const retrieveFromServer = () =>
+  fetch(saveUrl, {
     headers: {
       Authorization: `Basic ${window.authorization}`,
     },
@@ -99,9 +107,8 @@ function retrieveFromServer() {
       }
     })
     .catch((e) => console.error(e))
-}
 
-function load() {
+const load = () =>
   Promise.all([retrieveFromLocalStorage(), retrieveFromServer()]).then(
     ([localStorageData, serverData]) => {
       const localStorageLastSave =
@@ -113,45 +120,50 @@ function load() {
       setContent(data.lastIdx)
     }
   )
-}
 
-function addNewItem() {
+const addNewItem = () => {
   const newIdx = data.items.length
   data.items.push({ title: 'New note', text: '' })
   data.lastIdx = newIdx
   setContent(newIdx)
-  debouncedSave()
+  save()
 }
 
 addBtn.addEventListener('click', addNewItem, false)
 
-function removeItem(idx) {
-  const item = data.items[idx]
+const removeItem = (idToRemove) => {
+  const item = data.items.find(({ id }) => id === idToRemove)
   if (
     item.text.length === 0 ||
     confirm(`Are you sure to delete « ${item.title} » ?`)
   ) {
     console.log('before', JSON.stringify(data.items))
-    data.items.splice(idx, 1)
-    console.log('after', JSON.stringify(data.items))
-    data.lastIdx = 0
+    const newData = {
+      lastIdx: 0,
+      items: data.items.filter(({ id }) => id !== idToRemove),
+    }
+    console.log('after', JSON.stringify(newData.items))
+    data = newData
     buildList()
-    debouncedSave()
+    debouncePersistSave()
   }
 }
-function hideList() {
+
+const hideList = () => {
   document.body.classList.remove('list')
   emptyList()
 }
-function emptyList() {
+
+const emptyList = () => {
   while (list.firstChild) {
     list.removeChild(list.firstChild)
   }
 }
-function buildList() {
+
+const buildList = () => {
   emptyList()
   const addRemoveBtn = data.items.length > 1
-  data.items.forEach(({ title, text }, idx) => {
+  data.items.forEach(({ id, title, text }, idx) => {
     const li = document.createElement('li')
     const aItem = document.createElement('a')
     aItem.innerText = title
@@ -167,7 +179,7 @@ function buildList() {
       aRemove.innerHTML = removeIcon
       aRemove.classList.add('remove')
       aRemove.addEventListener('click', () => {
-        removeItem(idx)
+        removeItem(id)
       })
       li.appendChild(aRemove)
     }
@@ -175,9 +187,10 @@ function buildList() {
   })
   document.body.classList.add('list')
 }
-function toggleList() {
+
+const toggleList = () =>
   document.body.classList.contains('list') ? hideList() : buildList()
-}
+
 changeBtn.addEventListener('click', toggleList, false)
 
 const hideIntro = () => {
