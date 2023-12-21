@@ -1,6 +1,10 @@
 {
-  "short_name": "SP",
   "name": "Scratchpad",
+  "short_name": "Scratchpad",
+  "start_url": "./",
+  "display": "minimal-ui",
+  "theme_color": "#FFF7ED",
+  "background_color": "#FFF7ED",
   "icons": [
     {
       "src": "pad-64.png",
@@ -17,9 +21,5 @@
       "sizes": "256x256 512x512",
       "type": "image/png"
     }
-  ],
-  "start_url": "./",
-  "display": "minimal-ui",
-  "theme_color": "#FFF7ED",
-  "background_color": "#FFF7ED"
+  ]
 }
