@@ -97,6 +97,11 @@ a {
   width: 100%;
   height: calc(100% - 50px);
 }
+#md {
+  padding: 0 0.5em;
+  overflow-y: auto;
+}
+
 textarea {
   background-color: #fff7ed;
   padding: 4px;
@@ -116,6 +121,9 @@ body.list h1 span {
   display: block;
 }
 body.list textarea {
+  display: none;
+}
+body.list #md {
   display: none;
 }
 body.list #list {
@@ -152,4 +160,21 @@ body.list #list {
 }
 #auth h1 {
   padding: 0.25em 0.1em;
+}
+
+#md h1 {
+  margin: 0.4em 0 0.25em 0;
+}
+#md h2 {
+  margin: 0.3em 0 0.2em 0;
+}
+#md h3,
+#md h4,
+#md h5,
+#md h6 {
+  margin: 0.2em 0 0.1em 0;
+}
+#md ul,
+#md ol {
+  margin-left: 1em;
 }

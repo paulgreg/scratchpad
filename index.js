@@ -1,5 +1,6 @@
 const title = document.querySelector('h1 input')
 const textarea = document.querySelector('textarea')
+const md = document.querySelector('#md')
 const savingIcon = document.querySelector('#saving')
 const addBtn = document.querySelector('#add')
 const changeBtn = document.querySelector('#change')
@@ -12,6 +13,7 @@ const localstorageKey = `scratchpad-${notebook}`
 const saveUrl = `/json-store/scratchpad/${notebook}.json`
 
 const lastTimeout = {}
+let exiting = false
 
 const debounce = (fn, delay) => () => {
   clearTimeout(lastTimeout[fn])
@@ -74,8 +76,12 @@ let data = {
       id: Date.now(),
       title: 'Scratchpad',
       text: `
+# Welcome
 
-Type your wonderful idea or grocery list here.`,
+Tap or click to switch to edit mode.
+
+You can use [markdown syntax](https://www.markdownguide.org/basic-syntax/) to format your text.
+`,
     },
   ],
 }
@@ -83,9 +89,15 @@ Type your wonderful idea or grocery list here.`,
 const setContent = (idx) => {
   data.lastIdx = idx
   title.value = data.items[data.lastIdx].title
-  textarea.value = data.items[data.lastIdx].text
+  const text = data.items[data.lastIdx].text
+  textarea.value = text
+  md.innerHTML = marked.parse(text)
   hideList()
-  textarea.focus()
+  if (!text?.length) {
+    switchToEdit()
+  } else {
+    switchToMarkdown()
+  }
 }
 
 const retrieveFromLocalStorage = () => {
@@ -196,6 +208,22 @@ changeBtn.addEventListener('click', toggleList, false)
 const hideIntro = () => {
   auth.style.display = 'none'
 }
+
+const switchToEdit = (e) => {
+  if (e?.target?.tagName === 'A') return
+  md.style.display = 'none'
+  textarea.style.display = ''
+  textarea.focus()
+}
+md.addEventListener('click', switchToEdit, false)
+
+const switchToMarkdown = () => {
+  if (exiting) return
+  textarea.style.display = 'none'
+  md.innerHTML = marked.parse(textarea.value)
+  md.style.display = ''
+}
+textarea.addEventListener('blur', switchToMarkdown, false)
 
 if (notebookCheck) {
   hideIntro()

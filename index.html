@@ -148,7 +148,8 @@
       </button>
     </div>
     <div id="list" class="fill"><ol></ol></div>
-    <textarea class="fill">Please wait...</textarea>
+    <textarea class="fill" style="display: none;"></textarea>
+    <div id="md" class="fill" title="Click to switch to edit mode">Please wait...</textarea>
     <template id="removeIcon">
       <svg
         version="1.1"
@@ -177,6 +178,7 @@
       </svg>
     </template>
     <script src="settings.js"></script>
+    <script src="marked.min.js"></script>
     <script src="index.js"></script>
     <script>
       if ('serviceWorker' in navigator)
