@@ -4,6 +4,7 @@ const md = document.querySelector('#md')
 const savingIcon = document.querySelector('#saving')
 const addBtn = document.querySelector('#add')
 const changeBtn = document.querySelector('#change')
+const switchBtn = document.querySelector('#switch')
 const list = document.querySelector('#list ol')
 const removeIcon = document.querySelector('#removeIcon').innerHTML
 const search = document.location.search || ''
@@ -13,7 +14,7 @@ const localstorageKey = `scratchpad-${notebook}`
 const saveUrl = `/json-store/scratchpad/${notebook}.json`
 
 const lastTimeout = {}
-let exiting = false
+let editMode = false
 
 const debounce = (fn, delay) => () => {
   clearTimeout(lastTimeout[fn])
@@ -78,7 +79,7 @@ let data = {
       text: `
 # Welcome
 
-Tap or click to switch to edit mode.
+Use the double arrow button to switch between **markdown** and **edit** mode.
 
 You can use [markdown syntax](https://www.markdownguide.org/basic-syntax/) to format your text.
 `,
@@ -114,15 +115,22 @@ const retrieveFromServer = () =>
   })
     .then((response) => {
       if (response.ok) return response.json()
-      if (response.status === 404) {
-        return {}
+      if (response.status === 404) return {}
+    })
+    .catch((err) => {
+      console.error(err)
+      if (
+        confirm(
+          'Error while loading data from server. Do you want to try again (ok) or continue with local data (cancel) ?'
+        )
+      ) {
+        window.location.reload()
       }
     })
-    .catch((e) => console.error(e))
 
 const load = () =>
-  Promise.all([retrieveFromLocalStorage(), retrieveFromServer()]).then(
-    ([localStorageData, serverData]) => {
+  Promise.all([retrieveFromLocalStorage(), retrieveFromServer()])
+    .then(([localStorageData, serverData]) => {
       const localStorageLastSave =
         (localStorageData && localStorageData.lastSave) || 0
       const serverLastSave = (serverData && serverData.lastSave) || 0
@@ -130,8 +138,11 @@ const load = () =>
         localStorageLastSave > serverLastSave ? localStorageData : serverData
       if (lastData && lastData.items) data = lastData
       setContent(data.lastIdx)
-    }
-  )
+    })
+    .catch((err) => {
+      console.error(err)
+      alert('An error occured while loading data')
+    })
 
 const addNewItem = () => {
   const newIdx = data.items.length
@@ -214,16 +225,21 @@ const switchToEdit = (e) => {
   md.style.display = 'none'
   textarea.style.display = ''
   textarea.focus()
+  editMode = true
 }
-md.addEventListener('click', switchToEdit, false)
 
 const switchToMarkdown = () => {
-  if (exiting) return
   textarea.style.display = 'none'
   md.innerHTML = marked.parse(textarea.value)
   md.style.display = ''
+  editMode = false
 }
-textarea.addEventListener('blur', switchToMarkdown, false)
+
+const switchBetweenMode = () => {
+  if (editMode) switchToMarkdown()
+  else switchToEdit()
+}
+switchBtn.addEventListener('click', switchBetweenMode, false)
 
 if (notebookCheck) {
   hideIntro()

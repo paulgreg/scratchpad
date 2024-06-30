@@ -22,7 +22,7 @@ a {
 }
 h1 {
   display: inline-block;
-  width: calc(100% - 150px);
+  width: calc(100% - 195px);
   vertical-align: top;
 }
 h1 input {
