@@ -10,8 +10,7 @@ const list = document.querySelector('#list ol')
 const removeIcon = document.querySelector('#removeIcon').innerHTML
 const startButton = document.querySelector('#StartButton')
 const search = document.location.search || ''
-const notebook = search.replace('?notebook=', '')
-const localstorageKey = `scratchpad-${notebook}`
+const localstorageKey = 'scratchpad'
 
 const lastTimeout = {}
 
