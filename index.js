@@ -1,3 +1,4 @@
+const intro = document.querySelector('#intro')
 const title = document.querySelector('h1 input')
 const textarea = document.querySelector('textarea')
 const md = document.querySelector('#md')
@@ -217,7 +218,7 @@ const toggleList = () =>
 changeBtn.addEventListener('click', toggleList, false)
 
 const hideIntro = () => {
-  auth.style.display = 'none'
+  intro.style.display = 'none'
 }
 
 const switchToEdit = (e) => {
