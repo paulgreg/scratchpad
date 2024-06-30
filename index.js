@@ -1,13 +1,21 @@
+const intro = document.querySelector('#intro')
 const title = document.querySelector('h1 input')
 const textarea = document.querySelector('textarea')
+const md = document.querySelector('#md')
 const savingIcon = document.querySelector('#saving')
 const addBtn = document.querySelector('#add')
 const changeBtn = document.querySelector('#change')
+const switchBtn = document.querySelector('#switch')
 const list = document.querySelector('#list ol')
 const removeIcon = document.querySelector('#removeIcon').innerHTML
 const startButton = document.querySelector('#StartButton')
+const search = document.location.search || ''
+const notebook = search.replace('?notebook=', '')
+const localstorageKey = `scratchpad-${notebook}`
 
 const lastTimeout = {}
+
+let editMode = false
 
 const debounce = (fn, delay) => () => {
   clearTimeout(lastTimeout[fn])
@@ -25,11 +33,16 @@ const save = () => {
 
 const persistToLocalStorage = () => {
   console.log('persistToLocalStorage', data)
-  localStorage.setItem('data', JSON.stringify(data))
+  localStorage.setItem(localstorageKey, JSON.stringify(data))
   setSaveIcon()
 }
 
-const debouncedPersistSave = debounce(persistToLocalStorage, 500)
+const persistSave = () => {
+  persistToLocalStorage()
+  setSaveIcon()
+}
+
+const debouncedPersistSave = debounce(persistSave, 500)
 
 let timeoutSaveIcon
 
@@ -46,13 +59,18 @@ title.addEventListener('paste', save, false)
 
 let data = {
   lastIdx: 0,
+  lastSave: undefined,
   items: [
     {
       id: Date.now(),
       title: 'Scratchpad',
       text: `
+# Welcome
 
-Type your wonderful idea or grocery list here.`,
+Use the double arrow button to switch between **markdown** and **edit** mode.
+
+You can use [markdown syntax](https://www.markdownguide.org/basic-syntax/) to format your text.
+`,
     },
   ],
 }
@@ -60,14 +78,20 @@ Type your wonderful idea or grocery list here.`,
 const setContent = (idx) => {
   data.lastIdx = idx
   title.value = data.items[data.lastIdx].title
-  textarea.value = data.items[data.lastIdx].text
+  const text = data.items[data.lastIdx].text
+  textarea.value = text
+  md.innerHTML = marked.parse(text)
   hideList()
-  textarea.focus()
+  if (!text?.length) {
+    switchToEdit()
+  } else {
+    switchToMarkdown()
+  }
 }
 
 const retrieveFromLocalStorage = () => {
-  const content = JSON.parse(localStorage.getItem('data'))
-  console.log('retrieveFromLocalStorage', content)
+  const content = JSON.parse(localStorage.getItem(localstorageKey))
+  console.log('retrieveFromLocalStorage', localstorageKey, content)
   return Promise.resolve(content)
 }
 
@@ -83,7 +107,6 @@ const load = () =>
         })),
       }
     }
-    console.log(data)
     setContent(data.lastIdx)
   })
 
@@ -111,7 +134,7 @@ const removeItem = (idToRemove) => {
     console.log('after', JSON.stringify(newData.items))
     data = newData
     buildList()
-    persistToLocalStorage()
+    debouncePersistSave()
   }
 }
 
@@ -159,16 +182,37 @@ const toggleList = () =>
 
 changeBtn.addEventListener('click', toggleList, false)
 
-const hideIntroAndLoad = () => {
-  auth.style.display = 'none'
-  load()
+const hideIntro = () => {
+  intro.style.display = 'none'
 }
+
+const switchToEdit = (e) => {
+  if (e?.target?.tagName === 'A') return
+  md.style.display = 'none'
+  textarea.style.display = ''
+  textarea.focus()
+  editMode = true
+}
+
+const switchToMarkdown = () => {
+  textarea.style.display = 'none'
+  md.innerHTML = marked.parse(textarea.value)
+  md.style.display = ''
+  editMode = false
+}
+
+const switchBetweenMode = () => {
+  if (editMode) switchToMarkdown()
+  else switchToEdit()
+}
+switchBtn.addEventListener('click', switchBetweenMode, false)
 
 startButton.addEventListener(
   'click',
   (e) => {
     e.preventDefault()
-    hideIntroAndLoad()
+    hideIntro()
+    load()
   },
   false
 )

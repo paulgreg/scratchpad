@@ -16,12 +16,18 @@
     <link type="text/css" rel="stylesheet" href="./index.css" />
   </head>
   <body>
-    <div id="auth">
+    <div id="intro">
       <h1>Scratchpad</h1>
       <p>
         Scratchpad is a <abbr title="Progessive Web App">PWA</abbr> to store
-        notes.
+        notes. Notes can be written in
+        <a
+          href="https://www.markdownguide.org/basic-syntax/"
+          rel="noopener nofollow"
+          >Markdown</a
+        >.
       </p>
+
       <p>
         Notes will be stored on your device, in browser’s
         <a
@@ -84,6 +90,33 @@
           </g>
         </svg>
       </span>
+      <button
+        class="roundButton"
+        id="switch"
+        title="Switch betwen edit and read mode"
+      >
+        <svg
+          version="1.1"
+          id="change-svg"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          x="0px"
+          y="0px"
+          width="32px"
+          height="32px"
+          viewBox="0 0 16 16"
+          enable-background="new 0 0 16 16"
+          xml:space="preserve"
+        >
+          <path
+            d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"
+          />
+          <path
+            fill-rule="evenodd"
+            d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"
+          />
+        </svg>
+      </button>
       <button class="roundButton" id="add" title="New scratchpad">
         <svg
           version="1.1"
@@ -94,21 +127,13 @@
           y="0px"
           width="32px"
           height="32px"
-          viewBox="0 0 64 64"
-          enable-background="new 0 0 64 64"
+          viewBox="0 0 16 16"
+          enable-background="new 0 0 16 16"
           xml:space="preserve"
         >
-          <g id="CIRCLE__x2F__PLUS_1_" enable-background="new    ">
-            <g id="CIRCLE__x2F__PLUS">
-              <g>
-                <path
-                  d="M45,29H35V19c0-1.657-1.343-3-3-3s-3,1.343-3,3v10H19c-1.657,0-3,1.343-3,3s1.343,3,3,3h10v10c0,1.657,1.343,3,3,3
-                        s3-1.343,3-3V35h10c1.657,0,3-1.343,3-3S46.657,29,45,29z M32,0C14.327,0,0,14.327,0,32s14.327,32,32,32s32-14.327,32-32
-                        S49.673,0,32,0z M32,58C17.641,58,6,46.359,6,32C6,17.64,17.641,6,32,6c14.359,0,26,11.641,26,26C58,46.359,46.359,58,32,58z"
-                />
-              </g>
-            </g>
-          </g>
+          <path
+            d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
+          />
         </svg>
       </button>
       <button class="roundButton" id="change" title="Change scratchpad">
@@ -121,28 +146,22 @@
           y="0px"
           width="32px"
           height="32px"
-          viewBox="0 0 64 64"
-          enable-background="new 0 0 64 64"
+          viewBox="0 0 16 16"
+          enable-background="new 0 0 16 16"
           xml:space="preserve"
         >
-          <g id="CIRCLE__x2F__UP_1_" enable-background="new    ">
-            <g id="CIRCLE__x2F__UP">
-              <g>
-                <path
-                  d="M43.23,26.993l-9-10L34.223,17c-0.55-0.61-1.336-1-2.223-1c-0.885,0-1.672,0.391-2.222,1l-0.008-0.007l-9,10L20.778,27
-                        C20.3,27.532,20,28.229,20,29c0,1.657,1.343,3,3,3c0.885,0,1.673-0.391,2.222-1l0.008,0.007L29,26.818V45c0,1.657,1.343,3,3,3
-                        s3-1.343,3-3V26.818l3.77,4.189L38.777,31c0.55,0.61,1.338,1,2.223,1c1.657,0,3-1.343,3-3c0-0.772-0.3-1.468-0.777-2
-                        L43.23,26.993z M32,0C14.327,0,0,14.327,0,32s14.327,32,32,32s32-14.327,32-32S49.673,0,32,0z M32,58C17.641,58,6,46.359,6,32
-                        C6,17.64,17.641,6,32,6c14.359,0,26,11.64,26,26C58,46.359,46.359,58,32,58z"
-                />
-              </g>
-            </g>
-          </g>
+          <path
+            fill-rule="evenodd"
+            d="M2 12.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"
+          />
         </svg>
       </button>
     </div>
-    <div id="list" class="fill"><ol></ol></div>
-    <textarea class="fill">Please wait...</textarea>
+    <div id="list" class="fill">
+      <ol></ol>
+    </div>
+    <textarea class="fill" style="display: none"></textarea>
+    <div id="md" class="fill">Please wait...</div>
     <template id="removeIcon">
       <svg
         version="1.1"
@@ -157,7 +176,7 @@
         enable-background="new 0 0 64 64"
         xml:space="preserve"
       >
-        <g id="CIRCLE__x2F__MINUS_1_" enable-background="new    ">
+        <g id="CIRCLE__x2F__MINUS_1_" enable-background="new">
           <g id="CIRCLE__x2F__MINUS">
             <g>
               <path
@@ -170,6 +189,7 @@
         </g>
       </svg>
     </template>
+    <script src="marked.min.js"></script>
     <script src="index.js"></script>
     <script>
       if ('serviceWorker' in navigator)

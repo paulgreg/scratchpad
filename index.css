@@ -22,7 +22,7 @@ a {
 }
 h1 {
   display: inline-block;
-  width: calc(100% - 150px);
+  width: calc(100% - 195px);
   vertical-align: top;
 }
 h1 input {
@@ -62,11 +62,34 @@ a {
   height: 40px;
   padding: 8px 16px;
   font-size: 16px;
-  border: 1px solid darkslategray;
-  background-color: #f4b400;
+  color: black;
+  border: 1px solid black;
+  background-color: orange;
+}
+.start {
+  padding: 8px 16px;
+  font-size: 16px;
+  border-top: 1px solid grey;
+  border-bottom: 1px solid grey;
+  background-color: white;
+  color: black;
+}
+.start input {
+  font-size: 16px;
+  height: 40px;
+  border: 1px solid black;
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
     0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
+.start input[type='text'] {
+  width: 100px;
+  text-align: center;
+}
+.start input[type='submit'] {
+  padding: 8px;
+  background-color: orange;
+}
+
 #saving {
   fill: green;
   margin-left: 10px;
@@ -83,6 +106,11 @@ a {
   width: 100%;
   height: calc(100% - 50px);
 }
+#md {
+  padding: 0 0.5em;
+  overflow-y: auto;
+}
+
 textarea {
   background-color: #fff7ed;
   padding: 4px;
@@ -102,6 +130,9 @@ body.list h1 span {
   display: block;
 }
 body.list textarea {
+  display: none;
+}
+body.list #md {
   display: none;
 }
 body.list #list {
@@ -127,7 +158,7 @@ body.list #list {
   right: 18px;
   margin-top: -10px;
 }
-#auth {
+#intro {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -136,6 +167,23 @@ body.list #list {
   background-color: #ffefd6;
   overflow-y: auto;
 }
-#auth h1 {
+#intro h1 {
   padding: 0.25em 0.1em;
+}
+
+#md h1 {
+  margin: 0.4em 0 0.25em 0;
+}
+#md h2 {
+  margin: 0.3em 0 0.2em 0;
+}
+#md h3,
+#md h4,
+#md h5,
+#md h6 {
+  margin: 0.2em 0 0.1em 0;
+}
+#md ul,
+#md ol {
+  margin-left: 1em;
 }
