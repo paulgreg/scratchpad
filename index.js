@@ -117,6 +117,7 @@ const retrieveFromServer = () =>
     .then((response) => {
       if (response.ok) return response.json()
       if (response.status === 404) return {}
+      throw new Error(`error: ${response.status}`)
     })
     .catch((err) => {
       console.error(err)
@@ -129,6 +130,14 @@ const retrieveFromServer = () =>
       }
     })
 
+const enableUI = () => {
+  title.disabled = false
+  textarea.disabled = false
+  addBtn.disabled = false
+  changeBtn.disabled = false
+  switchBtn.disabled = false
+}
+
 const load = () =>
   Promise.all([retrieveFromLocalStorage(), retrieveFromServer()])
     .then(([localStorageData, serverData]) => {
@@ -138,6 +147,7 @@ const load = () =>
       const lastData =
         localStorageLastSave > serverLastSave ? localStorageData : serverData
       if (lastData && lastData.items) data = lastData
+      enableUI()
       setContent(data.lastIdx)
     })
     .catch((err) => {

@@ -71,7 +71,7 @@
     </div>
     <div class="main">
       <h1>
-        <input type="text" value="Loading" />
+        <input type="text" value="Loading" disabled />
         <span>Your notes</span>
       </h1>
       <span id="saving" title="Saving">
@@ -107,6 +107,7 @@
         class="roundButton"
         id="switch"
         title="Switch betwen edit and read mode"
+        disabled
       >
         <svg
           version="1.1"
@@ -130,7 +131,7 @@
           />
         </svg>
       </button>
-      <button class="roundButton" id="add" title="New scratchpad">
+      <button class="roundButton" id="add" title="New scratchpad" disabled>
         <svg
           version="1.1"
           id="add-svg"
@@ -149,7 +150,12 @@
           />
         </svg>
       </button>
-      <button class="roundButton" id="change" title="Change scratchpad">
+      <button
+        class="roundButton"
+        id="change"
+        title="Change scratchpad"
+        disabled
+      >
         <svg
           version="1.1"
           id="change-svg"
@@ -173,7 +179,7 @@
     <div id="list" class="fill">
       <ol></ol>
     </div>
-    <textarea class="fill" style="display: none"></textarea>
+    <textarea class="fill" style="display: none" disabled></textarea>
     <div id="md" class="fill">Please wait...</div>
     <template id="removeIcon">
       <svg
