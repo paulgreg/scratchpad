@@ -1,81 +1,46 @@
-const intro = document.querySelector('#intro')
-const title = document.querySelector('h1 input')
-const textarea = document.querySelector('textarea')
-const md = document.querySelector('#md')
-const savingIcon = document.querySelector('#saving')
-const addBtn = document.querySelector('#add')
-const changeBtn = document.querySelector('#change')
-const switchBtn = document.querySelector('#switch')
-const list = document.querySelector('#list ol')
-const removeIcon = document.querySelector('#removeIcon').innerHTML
+import './style.css'
+
+import { markdown } from 'markdown'
+import { v4 as uuidv4 } from 'uuid'
+import { authorization } from './settings'
+
+const intro = document.querySelector('#intro') as HTMLDivElement
+const title = document.querySelector('h1 input') as HTMLInputElement
+const textarea = document.querySelector('textarea') as HTMLTextAreaElement
+const md = document.querySelector('#md') as HTMLDivElement
+const savingIcon = document.querySelector('#saving') as HTMLSpanElement
+const addBtn = document.querySelector('#add') as HTMLButtonElement
+const changeBtn = document.querySelector('#change') as HTMLButtonElement
+const switchBtn = document.querySelector('#switch') as HTMLButtonElement
+const list = document.querySelector('#list ol') as HTMLOListElement
+const removeIcon = (
+  document.querySelector('#removeIcon') as HTMLTemplateElement
+)?.innerHTML
 const search = document.location.search || ''
 const notebook = search.replace('?notebook=', '')
-const notebookCheck = new RegExp('^[a-zA-Z0-9]{1,12}$').test(notebook)
 const localstorageKey = `scratchpad-${notebook}`
 const saveUrl = `/json-store/scratchpad/${notebook}.json`
 
-const lastTimeout = {}
+let lastTimeout: number | undefined
 let editMode = false
 
-const debounce = (fn, delay) => () => {
-  clearTimeout(lastTimeout[fn])
-  lastTimeout[fn] = setTimeout(fn, delay)
+type ItemType = {
+  id: string
+  title: string
+  text: string
+}
+type DataType = {
+  lastIdx: number
+  lastSave: number | undefined
+  items: Array<ItemType>
 }
 
-const persistSave = () => {
-  persistToLocalStorage()
-  persistOnServer()
-  setSaveIcon()
-}
-
-const debouncePersistSave = debounce(persistSave, 500)
-
-const save = () => {
-  data.lastSave = Date.now()
-  data.items[data.lastIdx] = {
-    id: Date.now(),
-    title: title.value,
-    text: textarea.value,
-  }
-  debouncePersistSave()
-}
-
-const persistToLocalStorage = () => {
-  console.log('persistToLocalStorage', localstorageKey, data)
-  localStorage.setItem(localstorageKey, JSON.stringify(data))
-}
-
-const persistOnServer = () => {
-  fetch(saveUrl, {
-    method: 'POST',
-    mode: 'cors',
-    headers: {
-      Authorization: `Basic ${window.authorization}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-}
-
-let timeoutSaveIcon
-
-const setSaveIcon = () => {
-  clearTimeout(timeoutSaveIcon)
-  savingIcon.classList.add('saved')
-  timeoutSaveIcon = setTimeout(() => savingIcon.classList.remove('saved'), 500)
-}
-
-textarea.addEventListener('keyup', save, false)
-textarea.addEventListener('paste', save, false)
-title.addEventListener('keyup', save, false)
-title.addEventListener('paste', save, false)
-
-let data = {
+let data: DataType = {
   lastIdx: 0,
   lastSave: undefined,
   items: [
     {
-      id: Date.now(),
+      id: uuidv4(),
       title: 'Scratchpad',
       text: `
 # Welcome
@@ -88,12 +53,66 @@ You can use [markdown syntax](https://www.markdownguide.org/basic-syntax/) to fo
   ],
 }
 
-const setContent = (idx) => {
+const debounce = (fn: () => void, delay: number) => () => {
+  clearTimeout(lastTimeout)
+  lastTimeout = setTimeout(fn, delay)
+}
+
+const persistSave = () => {
+  persistToLocalStorage()
+  if (authorization) {
+    persistOnServer()
+  }
+  setSaveIcon()
+}
+
+const debouncePersistSave = debounce(persistSave, 500)
+
+const save = () => {
+  data.lastSave = Date.now()
+  data.items[data.lastIdx] = {
+    id: uuidv4(),
+    title: title.value,
+    text: textarea.value,
+  }
+  debouncePersistSave()
+}
+
+const persistToLocalStorage = () => {
+  console.log('persistToLocalStorage', localstorageKey, data)
+  localStorage.setItem(localstorageKey, JSON.stringify(data))
+}
+
+const persistOnServer = () =>
+  fetch(saveUrl, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      Authorization: `Basic ${authorization}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+
+let timeoutSaveIcon: number
+
+const setSaveIcon = () => {
+  clearTimeout(timeoutSaveIcon)
+  savingIcon?.classList.add('saved')
+  timeoutSaveIcon = setTimeout(() => savingIcon?.classList.remove('saved'), 500)
+}
+
+textarea?.addEventListener('keyup', save, false)
+textarea?.addEventListener('paste', save, false)
+title?.addEventListener('keyup', save, false)
+title?.addEventListener('paste', save, false)
+
+const setContent = (idx: number) => {
   data.lastIdx = idx
   title.value = data.items[data.lastIdx].title
   const text = data.items[data.lastIdx].text
   textarea.value = text
-  md.innerHTML = marked.parse(text)
+  md.innerHTML = markdown.toHTML(text)
   hideList()
   if (!text?.length) {
     switchToEdit()
@@ -103,20 +122,20 @@ const setContent = (idx) => {
 }
 
 const retrieveFromLocalStorage = () => {
-  const content = JSON.parse(localStorage.getItem(localstorageKey))
+  const content = JSON.parse(localStorage.getItem(localstorageKey) ?? '{}')
   console.log('retrieveFromLocalStorage', localstorageKey, content)
   return Promise.resolve(content)
 }
 
-const retrieveFromServer = () =>
+const retrieveFromServer = (): Promise<DataType | Record<string, never>> =>
   fetch(saveUrl, {
     headers: {
-      Authorization: `Basic ${window.authorization}`,
+      Authorization: `Basic ${authorization}`,
     },
   })
     .then((response) => {
-      if (response.ok) return response.json()
-      if (response.status === 404) return {}
+      if (response.ok) return response.json() as Promise<DataType>
+      if (response.status === 404) return Promise.resolve({})
       throw new Error(`error: ${response.status}`)
     })
     .catch((err) => {
@@ -128,6 +147,7 @@ const retrieveFromServer = () =>
       ) {
         window.location.reload()
       }
+      return Promise.resolve({})
     })
 
 const enableUI = () => {
@@ -139,11 +159,14 @@ const enableUI = () => {
 }
 
 const load = () =>
-  Promise.all([retrieveFromLocalStorage(), retrieveFromServer()])
+  Promise.all(
+    authorization
+      ? [retrieveFromLocalStorage(), retrieveFromServer()]
+      : [retrieveFromLocalStorage()]
+  )
     .then(([localStorageData, serverData]) => {
-      const localStorageLastSave =
-        (localStorageData && localStorageData.lastSave) || 0
-      const serverLastSave = (serverData && serverData.lastSave) || 0
+      const localStorageLastSave = localStorageData?.lastSave || 0
+      const serverLastSave = serverData?.lastSave || 0
       const lastData =
         localStorageLastSave > serverLastSave ? localStorageData : serverData
       if (lastData && lastData.items) data = lastData
@@ -157,7 +180,7 @@ const load = () =>
 
 const addNewItem = () => {
   const newIdx = data.items.length
-  data.items.push({ title: 'New note', text: '' })
+  data.items.push({ id: uuidv4(), title: 'New note', text: '' })
   data.lastIdx = newIdx
   setContent(newIdx)
   save()
@@ -165,15 +188,16 @@ const addNewItem = () => {
 
 addBtn.addEventListener('click', addNewItem, false)
 
-const removeItem = (idToRemove) => {
+const removeItem = (idToRemove: string) => {
   const item = data.items.find(({ id }) => id === idToRemove)
   if (
-    item.text.length === 0 ||
-    confirm(`Are you sure to delete « ${item.title} » ?`)
+    item?.text.length === 0 ||
+    confirm(`Are you sure to delete « ${item?.title} » ?`)
   ) {
     console.log('before', JSON.stringify(data.items))
     const newData = {
       lastIdx: 0,
+      lastSave: data.lastSave,
       items: data.items.filter(({ id }) => id !== idToRemove),
     }
     console.log('after', JSON.stringify(newData.items))
@@ -203,6 +227,7 @@ const buildList = () => {
     aItem.innerText = title
     aItem.addEventListener('click', () => {
       setContent(idx)
+      switchBtn.style.visibility = ''
     })
     const span = document.createElement('span')
     span.innerText = text.length ? `(${text.length} chars)` : '(empty)'
@@ -222,17 +247,19 @@ const buildList = () => {
   document.body.classList.add('list')
 }
 
-const toggleList = () =>
-  document.body.classList.contains('list') ? hideList() : buildList()
+const toggleList = () => {
+  if (document.body.classList.contains('list')) {
+    hideList()
+    switchBtn.style.visibility = ''
+  } else {
+    buildList()
+    switchBtn.style.visibility = 'hidden'
+  }
+}
 
 changeBtn.addEventListener('click', toggleList, false)
 
-const hideIntro = () => {
-  intro.style.display = 'none'
-}
-
-const switchToEdit = (e) => {
-  if (e?.target?.tagName === 'A') return
+const switchToEdit = () => {
   md.style.display = 'none'
   textarea.style.display = ''
   textarea.focus()
@@ -241,7 +268,7 @@ const switchToEdit = (e) => {
 
 const switchToMarkdown = () => {
   textarea.style.display = 'none'
-  md.innerHTML = marked.parse(textarea.value)
+  md.innerHTML = markdown.toHTML(textarea.value)
   md.style.display = ''
   editMode = false
 }
@@ -252,7 +279,13 @@ const switchBetweenMode = () => {
 }
 switchBtn.addEventListener('click', switchBetweenMode, false)
 
+const notebookCheck = /^[a-zA-Z0-9]{1,12}$/.test(notebook)
 if (notebookCheck) {
-  hideIntro()
+  intro.style.display = 'none' // hide Intro
   load()
+} else if (authorization) {
+  const spansServer = document.querySelectorAll(
+    '.server'
+  ) as NodeListOf<HTMLSpanElement>
+  spansServer.forEach((el) => el.classList.remove('server'))
 }

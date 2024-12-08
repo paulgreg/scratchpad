@@ -178,3 +178,6 @@ body.list #list {
 #md ol {
   margin-left: 1em;
 }
+.server {
+  display: none;
+}
