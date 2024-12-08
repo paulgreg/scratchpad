@@ -6,7 +6,7 @@ They will be kept until browser cache (site preference to be more precise) is fl
 
 ## Configuration
 
-You’ll need to copy `settings.dist.js` to `settings.js` and update corresponding secret (according one defined on json-store)
+You’ll need to copy `src/settings.dist.ts` to `src/settings.ts` and update corresponding secret (according one defined on json-store)
 
 ## Alternate branch
 
