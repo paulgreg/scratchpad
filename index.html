@@ -1,199 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Scratchpad</title>
-    <meta name="robots" content="index, follow" />
-    <meta name="author" content="Gr&eacute;gory Paul" />
-    <meta
-      name="viewport"
-      content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0, user-scalable=no"
-    />
-    <meta name="description" content="Type your notes" />
-    <meta name="theme-color" content="#FFEFD6" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="shortcut icon" href="pad-128.png" />
-    <link type="text/css" rel="stylesheet" href="./index.css" />
-  </head>
-  <body>
-    <div id="intro">
-      <h1>Scratchpad</h1>
-      <p>
-        Scratchpad is a <abbr title="Progessive Web App">PWA</abbr> to store
-        notes. Notes can be written in
-        <a
-          href="https://www.markdownguide.org/basic-syntax/"
-          rel="noopener nofollow"
-          >Markdown</a
-        >.
-      </p>
 
-      <p>
-        Notes will be stored on your device, in browser’s
-        <a
-          rel="noopener"
-          href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
-          >local storage</a
-        >. <strong>No data will be stored online</strong>. However, keep in mind
-        that flushing your browser’s site preferences will remove your notes.
-      </p>
-      <p class="center">
-        <button id="StartButton">Start to take notes</button>
-      </p>
-      <p>
-        That application is free and open source. It’s not a commercial product,
-        only a « scratch your own itch » app. Code is available on
-        <a rel="noopener" href="https://github.com/paulgreg/scratchpad"
-          >github</a
-        >.
-      </p>
-      <p>
-        If you’re concerned about privacy and security, I encourage you to host
-        the app yourself by cloning the project on a web server.
-      </p>
-      <p>
-        More about my projects and contact informations on
-        <a href="https://paulgreg.me/">paulgreg.me</a>.
-      </p>
-    </div>
-    <div class="main">
-      <h1>
-        <input type="text" value="Loading" />
-        <span>Your notes</span>
-      </h1>
-      <span id="saving" title="Saving">
-        <svg
-          version="1.1"
-          id="saving-svg"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
-          x="0px"
-          y="0px"
-          width="32px"
-          height="32px"
-          viewBox="0 0 64 64"
-          enable-background="new 0 0 64 64"
-          xml:space="preserve"
-        >
-          <g id="CIRCLE__x2F__OK_1_" enable-background="new    ">
-            <g id="CIRCLE__x2F__OK">
-              <g>
-                <path
-                  d="M46,43.001L46,43.001C46,43,46,43,46,42.999V43.001z M46,20.999v0.002C46,21.001,46,21,46,20.999C46,21,46,21,46,20.999z
-                        M44,21c-0.828,0-1.578,0.336-2.121,0.879L28,35.758l-6.879-6.879C20.578,28.336,19.828,28,19,28c-1.657,0-3,1.343-3,3
-                        c0,0.828,0.336,1.578,0.879,2.121l9,9C26.422,42.664,27.172,43,28,43s1.578-0.336,2.121-0.879l16-16
-                        C46.664,25.579,47,24.828,47,24C47,22.343,45.657,21,44,21z M32,0C14.327,0,0,14.327,0,32s14.327,32,32,32s32-14.327,32-32
-                        S49.673,0,32,0z M32,58C17.641,58,6,46.359,6,32C6,17.64,17.641,6,32,6c14.359,0,26,11.64,26,26C58,46.359,46.359,58,32,58z"
-                />
-              </g>
-            </g>
-          </g>
-        </svg>
-      </span>
-      <button
-        class="roundButton"
-        id="switch"
-        title="Switch betwen edit and read mode"
-      >
-        <svg
-          version="1.1"
-          id="change-svg"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
-          x="0px"
-          y="0px"
-          width="32px"
-          height="32px"
-          viewBox="0 0 16 16"
-          enable-background="new 0 0 16 16"
-          xml:space="preserve"
-        >
-          <path
-            d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"
-          />
-          <path
-            fill-rule="evenodd"
-            d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"
-          />
-        </svg>
-      </button>
-      <button class="roundButton" id="add" title="New scratchpad">
-        <svg
-          version="1.1"
-          id="add-svg"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
-          x="0px"
-          y="0px"
-          width="32px"
-          height="32px"
-          viewBox="0 0 16 16"
-          enable-background="new 0 0 16 16"
-          xml:space="preserve"
-        >
-          <path
-            d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
-          />
-        </svg>
-      </button>
-      <button class="roundButton" id="change" title="Change scratchpad">
-        <svg
-          version="1.1"
-          id="change-svg"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
-          x="0px"
-          y="0px"
-          width="32px"
-          height="32px"
-          viewBox="0 0 16 16"
-          enable-background="new 0 0 16 16"
-          xml:space="preserve"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M2 12.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"
-          />
-        </svg>
-      </button>
-    </div>
-    <div id="list" class="fill">
-      <ol></ol>
-    </div>
-    <textarea class="fill" style="display: none"></textarea>
-    <div id="md" class="fill">Please wait...</div>
-    <template id="removeIcon">
-      <svg
-        version="1.1"
-        id="remove-svg"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        x="0px"
-        y="0px"
-        width="32px"
-        height="32px"
-        viewBox="0 0 64 64"
-        enable-background="new 0 0 64 64"
-        xml:space="preserve"
-      >
-        <g id="CIRCLE__x2F__MINUS_1_" enable-background="new">
-          <g id="CIRCLE__x2F__MINUS">
-            <g>
-              <path
-                d="M45,29H19c-1.657,0-3,1.343-3,3s1.343,3,3,3h26c1.657,0,3-1.343,3-3S46.657,29,45,29z M32,0C14.327,0,0,14.327,0,32
-                    s14.327,32,32,32s32-14.327,32-32S49.673,0,32,0z M32,58C17.641,58,6,46.359,6,32C6,17.64,17.641,6,32,6
-                    c14.359,0,26,11.641,26,26C58,46.359,46.359,58,32,58z"
-              />
-            </g>
-          </g>
-        </g>
-      </svg>
-    </template>
-    <script src="marked.min.js"></script>
-    <script src="index.js"></script>
-    <script>
-      if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('sw.js')
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>Scratchpad</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="author" content="Gr&eacute;gory Paul" />
+  <meta name="viewport"
+    content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Type your notes" />
+  <meta name="theme-color" content="#FFEFD6" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="shortcut icon" href="pad-128.png" />
+</head>
+<div id="intro">
+  <h1>Scratchpad</h1>
+  <p>
+    Scratchpad is a <abbr title="Progessive Web App">PWA</abbr> to store
+    notes. Notes can be written in
+    <a href="https://www.markdownguide.org/basic-syntax/" rel="noopener nofollow">Markdown</a>.
+  </p>
+
+  <p>
+    Notes will be stored on your device, in browser’s
+    <a rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">local storage</a>
+    <span class="server">and on server</span>.
+  </p>
+  <form class="start" method="GET">
+    <label>Notebook :
+      <input type="text" pattern="[a-zA-Z0-9]{1,12}" required maxlength="12" autofocus name="notebook"
+        title="Only letters and number, from 1 to 12 chars" autocapitalize="off" />
+    </label>
+    <input type="submit" value="go" />
+  </form>
+  <p>
+    That application is free and open source. It’s not a commercial product,
+    only a « scratch your own itch » app. Code is available on
+    <a rel="noopener" href="https://github.com/paulgreg/scratchpad">github</a>.
+  </p>
+  <p>
+    If you’re concerned about privacy and security, I encourage you to host
+    the app yourself by cloning the project on a web server.
+  </p>
+  <p>
+    More about my projects and contact informations on
+    <a href="https://paulgreg.me/">paulgreg.me</a>.
+  </p>
+</div>
+<div class="main">
+  <h1>
+    <input type="text" value="Loading" disabled />
+    <span>Your notes</span>
+  </h1>
+  <span id="saving" title="Saving">
+    <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="32" height="32" viewBox="0 0 64 64">
+      <path
+        d="M46 43.001v-.002.002zm0-22.002v.002-.002c0 .001 0 .001 0 0zM44 21a2.99 2.99 0 0 0-2.121.879L28 35.758l-6.879-6.879a3 3 0 1 0-4.242 4.242l9 9c.543.543 1.293.879 2.121.879s1.578-.336 2.121-.879l16-16A3 3 0 0 0 44 21zM32 0C14.327 0 0 14.327 0 32s14.327 32 32 32 32-14.327 32-32S49.673 0 32 0zm0 58C17.641 58 6 46.359 6 32 6 17.64 17.641 6 32 6s26 11.64 26 26c0 14.359-11.641 26-26 26z" />
+    </svg>
+  </span>
+  <button class="roundButton" id="switch" title="Switch betwen edit and read mode" disabled>
+    <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="32" height="32" viewBox="0 0 16 16">
+      <path
+        d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
+      <path fill-rule="evenodd"
+        d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
+    </svg>
+  </button>
+  <button class="roundButton" id="add" title="New scratchpad" disabled>
+    <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="32" height="32" viewBox="0 0 16 16">
+      <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+    </svg>
+  </button>
+  <button class="roundButton" id="change" title="Change scratchpad" disabled>
+    <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="32" height="32" viewBox="0 0 16 16">
+      <path fill-rule="evenodd"
+        d="M2 12.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
+    </svg>
+  </button>
+</div>
+<div id="list" class="fill">
+  <ol></ol>
+</div>
+<textarea class="fill" style="display: none" disabled></textarea>
+<div id="md" class="fill">Please wait...</div>
+<template id="removeIcon">
+  <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="32" height="32" x="-1" version="0.1"
+    viewBox="0 0 64 64">
+    <path
+      d="M44 29H19a3 3 0 1 0 0 6h26a3 3 0 1 0 0-6zM32 0C14.327 0 0 14.327 0 32s13.327 32 32 32 32-14.327 32-32S49.673 0 32 0zm0 58C17.641 58 6 46.359 6 32 6 17.64 17.641 6 32 6c13.359 0 26 11.641 26 26S46.359 58 32 58z" />
+  </svg>
+</template>
+<script type="module" src="/src/main.ts"></script>
+<script>
+  if ('serviceWorker' in navigator)
+    navigator.serviceWorker.register('sw.js')
+</script>
+</body>
+
 </html>

@@ -1,1 +1,3 @@
-settings.js
+src/settings.ts
+node_modules
+dist

@@ -4,9 +4,9 @@ A simple PWA to type some notes like grocery list or things to remember, stored 
 
 They will be kept until browser cache (site preference to be more precise) is flushed.
 
-## Self-hosting variants
+## Configuration
 
-There is a [branch](https://github.com/paulgreg/scratchpad/tree/json-store) storing data on server (using [json-store](https://github.com/paulgreg/json-store), a simple way to store json).
+You’ll need to copy `settings.dist.js` to `settings.js` and update corresponding secret (according one defined on json-store)
 
 ## Alternate branch
 
