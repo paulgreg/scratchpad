@@ -1,8 +1,9 @@
 import './style.css'
 
-import { markdown } from 'markdown'
 import { v4 as uuidv4 } from 'uuid'
 import { authorization } from './settings'
+import dompurify from 'dompurify'
+import * as marked from 'marked'
 
 const intro = document.querySelector('#intro') as HTMLDivElement
 const title = document.querySelector('h1 input') as HTMLInputElement
@@ -112,7 +113,7 @@ const setContent = (idx: number) => {
   title.value = data.items[data.lastIdx].title
   const text = data.items[data.lastIdx].text
   textarea.value = text
-  md.innerHTML = markdown.toHTML(text)
+  md.innerHTML = dompurify.sanitize(marked.parse(text) as string)
   hideList()
   if (!text?.length) {
     switchToEdit()
@@ -268,7 +269,7 @@ const switchToEdit = () => {
 
 const switchToMarkdown = () => {
   textarea.style.display = 'none'
-  md.innerHTML = markdown.toHTML(textarea.value)
+  md.innerHTML = dompurify.sanitize(marked.parse(textarea.value) as string)
   md.style.display = ''
   editMode = false
 }
