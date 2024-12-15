@@ -1,15 +1,17 @@
 import './style.css'
 
 import { v4 as uuidv4 } from 'uuid'
-import { authorization } from './settings'
+import { authorization, baseUrl } from './settings'
 import dompurify from 'dompurify'
 import * as marked from 'marked'
+import { debounce } from './debounce'
 
 const intro = document.querySelector('#intro') as HTMLDivElement
 const title = document.querySelector('h1 input') as HTMLInputElement
 const textarea = document.querySelector('textarea') as HTMLTextAreaElement
 const md = document.querySelector('#md') as HTMLDivElement
 const savingIcon = document.querySelector('#saving') as HTMLSpanElement
+const errorIcon = document.querySelector('#error') as HTMLSpanElement
 const addBtn = document.querySelector('#add') as HTMLButtonElement
 const changeBtn = document.querySelector('#change') as HTMLButtonElement
 const switchBtn = document.querySelector('#switch') as HTMLButtonElement
@@ -20,21 +22,9 @@ const removeIcon = (
 const search = document.location.search || ''
 const notebook = search.replace('?notebook=', '')
 const localstorageKey = `scratchpad-${notebook}`
-const saveUrl = `/json-store/scratchpad/${notebook}.json`
+const saveUrl = `${baseUrl}${notebook}.json`
 
-let lastTimeout: number | undefined
 let editMode = false
-
-type ItemType = {
-  id: string
-  title: string
-  text: string
-}
-type DataType = {
-  lastIdx: number
-  lastSave: number | undefined
-  items: Array<ItemType>
-}
 
 let data: DataType = {
   lastIdx: 0,
@@ -48,40 +38,17 @@ let data: DataType = {
 
 Use the double arrow button to switch between **markdown** and **edit** mode.
 
+Save happens in 2 phases : local which occurs often (green icon) then on server after a couple of seconds (blue icon).
+
 You can use [markdown syntax](https://www.markdownguide.org/basic-syntax/) to format your text.
 `,
     },
   ],
 }
 
-const debounce = (fn: () => void, delay: number) => () => {
-  clearTimeout(lastTimeout)
-  lastTimeout = setTimeout(fn, delay)
-}
-
-const persistSave = () => {
-  persistToLocalStorage()
-  if (authorization) {
-    persistOnServer()
-  }
-  setSaveIcon()
-}
-
-const debouncePersistSave = debounce(persistSave, 500)
-
-const save = () => {
-  data.lastSave = Date.now()
-  data.items[data.lastIdx] = {
-    id: uuidv4(),
-    title: title.value,
-    text: textarea.value,
-  }
-  debouncePersistSave()
-}
-
 const persistToLocalStorage = () => {
-  console.log('persistToLocalStorage', localstorageKey, data)
   localStorage.setItem(localstorageKey, JSON.stringify(data))
+  setSaveIcon(false)
 }
 
 const persistOnServer = () =>
@@ -94,13 +61,41 @@ const persistOnServer = () =>
     },
     body: JSON.stringify(data),
   })
+    .then(() => setSaveIcon(true))
+    .catch((e) => {
+      console.error(e)
+      setErrorIcon()
+    })
 
-let timeoutSaveIcon: number
+const [debouncePersistServerSave] = debounce(persistOnServer, 1500)
+const [debouncePersistLocaleSave] = debounce(persistToLocalStorage, 250)
 
-const setSaveIcon = () => {
-  clearTimeout(timeoutSaveIcon)
-  savingIcon?.classList.add('saved')
-  timeoutSaveIcon = setTimeout(() => savingIcon?.classList.remove('saved'), 500)
+const save = () => {
+  data.lastSave = Date.now()
+  data.items[data.lastIdx] = {
+    id: uuidv4(),
+    title: title.value,
+    text: textarea.value,
+  }
+  debouncePersistLocaleSave()
+  if (authorization) debouncePersistServerSave()
+}
+
+const [debouncedSaveIcon] = debounce(() => {
+  savingIcon?.classList.add('hidden')
+  savingIcon?.classList.remove('server')
+}, 250)
+
+const setSaveIcon = (server = false) => {
+  errorIcon?.classList.add('hidden')
+  if (server) savingIcon?.classList.add('server')
+  savingIcon?.classList.remove('hidden')
+  debouncedSaveIcon()
+}
+
+const setErrorIcon = () => {
+  savingIcon?.classList.add('hidden')
+  errorIcon?.classList.remove('hidden')
 }
 
 textarea?.addEventListener('keyup', save, false)
@@ -124,7 +119,6 @@ const setContent = (idx: number) => {
 
 const retrieveFromLocalStorage = () => {
   const content = JSON.parse(localStorage.getItem(localstorageKey) ?? '{}')
-  console.log('retrieveFromLocalStorage', localstorageKey, content)
   return Promise.resolve(content)
 }
 
@@ -166,11 +160,11 @@ const load = () =>
       : [retrieveFromLocalStorage()]
   )
     .then(([localStorageData, serverData]) => {
-      const localStorageLastSave = localStorageData?.lastSave || 0
-      const serverLastSave = serverData?.lastSave || 0
+      const localStorageLastSave = localStorageData?.lastSave ?? 0
+      const serverLastSave = serverData?.lastSave ?? 0
       const lastData =
         localStorageLastSave > serverLastSave ? localStorageData : serverData
-      if (lastData && lastData.items) data = lastData
+      if (lastData?.items) data = lastData
       enableUI()
       setContent(data.lastIdx)
     })
@@ -195,16 +189,14 @@ const removeItem = (idToRemove: string) => {
     item?.text.length === 0 ||
     confirm(`Are you sure to delete « ${item?.title} » ?`)
   ) {
-    console.log('before', JSON.stringify(data.items))
     const newData = {
       lastIdx: 0,
       lastSave: data.lastSave,
       items: data.items.filter(({ id }) => id !== idToRemove),
     }
-    console.log('after', JSON.stringify(newData.items))
     data = newData
     buildList()
-    debouncePersistSave()
+    debouncePersistServerSave()
   }
 }
 
@@ -285,8 +277,6 @@ if (notebookCheck) {
   intro.style.display = 'none' // hide Intro
   load()
 } else if (authorization) {
-  const spansServer = document.querySelectorAll(
-    '.server'
-  ) as NodeListOf<HTMLSpanElement>
+  const spansServer = document.querySelectorAll('.server')
   spansServer.forEach((el) => el.classList.remove('server'))
 }

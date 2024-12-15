@@ -80,15 +80,23 @@ a {
   padding: 8px;
   background-color: orange;
 }
-
+#status {
+  display: inline-block;
+  margin-left: 10px;
+  height: 32px;
+  width: 32px;
+}
 #saving {
   fill: green;
-  margin-left: 10px;
-  opacity: 0;
-  transition: opacity 200ms ease-in-out;
 }
-#saving.saved {
-  opacity: 100;
+#saving.server {
+  fill: blue;
+}
+#error {
+  fill: red;
+}
+.hidden {
+  display: none;
 }
 .fill {
   position: absolute;
@@ -177,7 +185,4 @@ body.list #list {
 #md ul,
 #md ol {
   margin-left: 1em;
-}
-.server {
-  display: none;
 }
