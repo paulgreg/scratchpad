@@ -19,6 +19,7 @@ const list = document.querySelector('#list ol') as HTMLOListElement
 const removeIcon = (
   document.querySelector('#removeIcon') as HTMLTemplateElement
 )?.innerHTML
+const lastSaveAt = document.querySelector('#lastSaveAt') as HTMLSpanElement
 const search = document.location.search || ''
 const notebook = search.replace('?notebook=', '')
 const localstorageKey = `scratchpad-${notebook}`
@@ -51,34 +52,39 @@ const persistToLocalStorage = () => {
   setSaveIcon(false)
 }
 
-const persistOnServer = () =>
-  fetch(saveUrl, {
-    method: 'POST',
-    mode: 'cors',
-    headers: {
-      Authorization: `Basic ${authorization}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-    .then(() => setSaveIcon(true))
-    .catch((e) => {
-      console.error(e)
-      setErrorIcon()
+const persistOnServer = () => {
+  if (baseUrl && authorization) {
+    return fetch(saveUrl, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        Authorization: `Basic ${authorization}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     })
+      .then(() => setSaveIcon(true))
+      .catch((e) => {
+        console.error(e)
+        setErrorIcon()
+      })
+  }
+}
 
 const [debouncePersistServerSave] = debounce(persistOnServer, 1500)
 const [debouncePersistLocaleSave] = debounce(persistToLocalStorage, 250)
 
 const save = () => {
-  data.lastSave = Date.now()
+  const d = new Date()
+  data.lastSave = d.getTime()
   data.items[data.lastIdx] = {
     id: uuidv4(),
     title: title.value,
     text: textarea.value,
   }
+  lastSaveAt.innerText = d.toLocaleString()
   debouncePersistLocaleSave()
-  if (authorization) debouncePersistServerSave()
+  debouncePersistServerSave()
 }
 
 const [debouncedSaveIcon] = debounce(() => {
@@ -122,28 +128,32 @@ const retrieveFromLocalStorage = () => {
   return Promise.resolve(content)
 }
 
-const retrieveFromServer = (): Promise<DataType | Record<string, never>> =>
-  fetch(saveUrl, {
-    headers: {
-      Authorization: `Basic ${authorization}`,
-    },
-  })
-    .then((response) => {
-      if (response.ok) return response.json() as Promise<DataType>
-      if (response.status === 404) return Promise.resolve({})
-      throw new Error(`error: ${response.status}`)
+const retrieveFromServer = (): Promise<DataType | Record<string, never>> => {
+  if (baseUrl && authorization) {
+    return fetch(saveUrl, {
+      headers: {
+        Authorization: `Basic ${authorization}`,
+      },
     })
-    .catch((err) => {
-      console.error(err)
-      if (
-        confirm(
-          'Error while loading data from server. Do you want to try again (ok) or continue with local data (cancel) ?'
-        )
-      ) {
-        window.location.reload()
-      }
-      return Promise.resolve({})
-    })
+      .then((response) => {
+        if (response.ok) return response.json() as Promise<DataType>
+        if (response.status === 404) return Promise.resolve({})
+        throw new Error(`error: ${response.status}`)
+      })
+      .catch((err) => {
+        console.error(err)
+        if (
+          confirm(
+            'Error while loading data from server. Do you want to try again (ok) or continue with local data (cancel) ?'
+          )
+        ) {
+          window.location.reload()
+        }
+        return Promise.resolve({})
+      })
+  }
+  return Promise.resolve({})
+}
 
 const enableUI = () => {
   title.disabled = false
@@ -154,19 +164,19 @@ const enableUI = () => {
 }
 
 const load = () =>
-  Promise.all(
-    authorization
-      ? [retrieveFromLocalStorage(), retrieveFromServer()]
-      : [retrieveFromLocalStorage()]
-  )
+  Promise.all([retrieveFromLocalStorage(), retrieveFromServer()])
     .then(([localStorageData, serverData]) => {
       const localStorageLastSave = localStorageData?.lastSave ?? 0
       const serverLastSave = serverData?.lastSave ?? 0
-      const lastData =
-        localStorageLastSave > serverLastSave ? localStorageData : serverData
+      const isLocalMoreRecent = localStorageLastSave > serverLastSave
+      const lastData = isLocalMoreRecent ? localStorageData : serverData
       if (lastData?.items) data = lastData
       enableUI()
       setContent(data.lastIdx)
+      lastSaveAt.innerText = lastData?.lastSave
+        ? new Date(lastData.lastSave).toLocaleString()
+        : 'N/A'
+      if (isLocalMoreRecent) persistOnServer()
     })
     .catch((err) => {
       console.error(err)
@@ -178,6 +188,7 @@ const addNewItem = () => {
   data.items.push({ id: uuidv4(), title: 'New note', text: '' })
   data.lastIdx = newIdx
   setContent(newIdx)
+  switchBtn.style.visibility = ''
   save()
 }
 
@@ -196,7 +207,7 @@ const removeItem = (idToRemove: string) => {
     }
     data = newData
     buildList()
-    debouncePersistServerSave()
+    save()
   }
 }
 
@@ -276,7 +287,7 @@ const notebookCheck = /^[a-zA-Z0-9]{1,12}$/.test(notebook)
 if (notebookCheck) {
   intro.style.display = 'none' // hide Intro
   load()
-} else if (authorization) {
+} else if (baseUrl && authorization) {
   const spansServer = document.querySelectorAll('.server')
   spansServer.forEach((el) => el.classList.remove('server'))
 }
