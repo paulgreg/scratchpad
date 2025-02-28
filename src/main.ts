@@ -6,8 +6,15 @@ import dompurify from 'dompurify'
 import * as marked from 'marked'
 import { debounce } from './debounce'
 
+// Remove disabled on checkbox to allow edition
+const renderer = new marked.Renderer()
+renderer.checkbox = ({ checked }) =>
+  `<input type="checkbox" ${checked ? 'checked' : ''} />`
+marked.use({ renderer })
+
 const intro = document.querySelector('#intro') as HTMLDivElement
-const title = document.querySelector('h1 input') as HTMLInputElement
+const h2 = document.querySelector('h2') as HTMLHeadingElement
+const title = h2.querySelector('input') as HTMLInputElement
 const textarea = document.querySelector('textarea') as HTMLTextAreaElement
 const md = document.querySelector('#md') as HTMLDivElement
 const savingIcon = document.querySelector('#saving') as HTMLSpanElement
@@ -22,7 +29,8 @@ const removeIcon = (
 const lastSaveAt = document.querySelector('#lastSaveAt') as HTMLSpanElement
 const search = document.location.search || ''
 const notebook = search.replace('?notebook=', '')
-const localstorageKey = `scratchpad-${notebook}`
+const simpleMode = search === '?simple'
+const localstorageKey = notebook ? `scratchpad-${notebook}` : 'scratchpad'
 const saveUrl = `${baseUrl}${notebook}.json`
 
 let editMode = false
@@ -84,7 +92,7 @@ const save = () => {
   }
   lastSaveAt.innerText = d.toLocaleString()
   debouncePersistLocaleSave()
-  debouncePersistServerSave()
+  if (!simpleMode) debouncePersistServerSave()
 }
 
 const [debouncedSaveIcon] = debounce(() => {
@@ -116,7 +124,7 @@ const setContent = (idx: number) => {
   textarea.value = text
   md.innerHTML = dompurify.sanitize(marked.parse(text) as string)
   hideList()
-  if (!text?.length) {
+  if (simpleMode || !text?.length) {
     switchToEdit()
   } else {
     switchToMarkdown()
@@ -156,15 +164,22 @@ const retrieveFromServer = (): Promise<DataType | Record<string, never>> => {
 }
 
 const enableUI = () => {
-  title.disabled = false
   textarea.disabled = false
-  addBtn.disabled = false
-  changeBtn.disabled = false
   switchBtn.disabled = false
+  if (simpleMode) {
+    h2.classList.add('simple')
+  } else {
+    title.disabled = false
+    addBtn.disabled = false
+    changeBtn.disabled = false
+  }
 }
 
 const load = () =>
-  Promise.all([retrieveFromLocalStorage(), retrieveFromServer()])
+  Promise.all([
+    retrieveFromLocalStorage(),
+    simpleMode ? undefined : retrieveFromServer(),
+  ])
     .then(([localStorageData, serverData]) => {
       const localStorageLastSave = localStorageData?.lastSave ?? 0
       const serverLastSave = serverData?.lastSave ?? 0
@@ -176,7 +191,7 @@ const load = () =>
       lastSaveAt.innerText = lastData?.lastSave
         ? new Date(lastData.lastSave).toLocaleString()
         : 'N/A'
-      if (isLocalMoreRecent) persistOnServer()
+      if (!simpleMode && isLocalMoreRecent) persistOnServer()
     })
     .catch((err) => {
       console.error(err)
@@ -285,9 +300,18 @@ switchBtn.addEventListener('click', switchBetweenMode, false)
 
 const notebookCheck = /^[a-zA-Z0-9]{1,12}$/.test(notebook)
 if (notebookCheck) {
-  intro.style.display = 'none' // hide Intro
+  intro.style.display = 'none'
   load()
 } else if (baseUrl && authorization) {
   const spansServer = document.querySelectorAll('.server')
   spansServer.forEach((el) => el.classList.remove('server'))
+}
+
+if (simpleMode) {
+  intro.style.display = 'none'
+  addBtn.style.display = 'none'
+  changeBtn.style.display = 'none'
+
+  data.items[0].text = 'Start taking notes'
+  load()
 }

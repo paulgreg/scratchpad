@@ -19,13 +19,18 @@ body {
 a {
   text-decoration: underline;
   cursor: pointer;
+  color: black;
 }
-h1 {
+h1,
+h2 {
   display: inline-block;
   width: calc(100% - 195px);
   vertical-align: top;
 }
-h1 input {
+h2.simple {
+  width: calc(100% - 100px);
+}
+h2 input {
   border: 0;
   font-size: 26px;
   height: 26px;
@@ -33,7 +38,11 @@ h1 input {
   background-color: #ffefd6;
   border-bottom: 1px dashed grey;
 }
-h1 span {
+h2.simple input {
+  height: 36px;
+  border-bottom: none;
+}
+h2 span {
   display: none;
   font-size: 24px;
   padding: 10px;
@@ -44,15 +53,25 @@ h1 span {
   border: 4px solid #ffcd8e;
   border-radius: 50%;
 }
+.button {
+  width: 220px;
+  height: 40px;
+  padding: 8px 16px;
+  font-size: 16px;
+  color: black;
+  border: 1px solid black;
+  background-color: orange;
+}
+a.button {
+  text-decoration: none;
+}
 p {
   padding: 0.25em;
   line-height: 1.4em;
 }
-a {
-  color: black;
-}
 .center {
   text-align: center;
+  margin: 1em;
 }
 .choice {
   margin-top: 0.9em;
@@ -95,6 +114,7 @@ a {
 #error {
   fill: red;
 }
+
 .hidden {
   display: none;
 }
