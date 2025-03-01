@@ -28,7 +28,7 @@ h2 {
   vertical-align: top;
 }
 h2.simple {
-  width: calc(100% - 100px);
+  width: calc(100% - 148px);
 }
 h2 input {
   border: 0;

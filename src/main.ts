@@ -22,6 +22,7 @@ const errorIcon = document.querySelector('#error') as HTMLSpanElement
 const addBtn = document.querySelector('#add') as HTMLButtonElement
 const changeBtn = document.querySelector('#change') as HTMLButtonElement
 const switchBtn = document.querySelector('#switch') as HTMLButtonElement
+const clearBtn = document.querySelector('#clear') as HTMLButtonElement
 const list = document.querySelector('#list ol') as HTMLOListElement
 const removeIcon = (
   document.querySelector('#removeIcon') as HTMLTemplateElement
@@ -298,6 +299,15 @@ const switchBetweenMode = () => {
 }
 switchBtn.addEventListener('click', switchBetweenMode, false)
 
+const clearContent = () => {
+  if (confirm('clear content ?')) {
+    textarea.value = ''
+    textarea.focus()
+    save()
+  }
+}
+clearBtn.addEventListener('click', clearContent, false)
+
 const notebookCheck = /^[a-zA-Z0-9]{1,12}$/.test(notebook)
 if (notebookCheck) {
   intro.style.display = 'none'
@@ -311,6 +321,7 @@ if (simpleMode) {
   intro.style.display = 'none'
   addBtn.style.display = 'none'
   changeBtn.style.display = 'none'
+  clearBtn.style.display = ''
 
   data.items[0].text = 'Start taking notes'
   load()
