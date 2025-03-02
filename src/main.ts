@@ -5,6 +5,7 @@ import { authorization, baseUrl } from './settings'
 import dompurify from 'dompurify'
 import * as marked from 'marked'
 import { debounce } from './debounce'
+import * as jsonpatch from 'fast-json-patch'
 
 const intro = document.querySelector('#intro') as HTMLDivElement
 const h2 = document.querySelector('h2') as HTMLHeadingElement
@@ -37,6 +38,8 @@ if (simpleMode) {
 }
 
 let editMode = false
+let newDocument = true
+let observer: jsonpatch.Observer<DataType> | undefined
 
 let data: DataType = {
   lastIdx: 0,
@@ -63,18 +66,35 @@ const persistToLocalStorage = () => {
   setSaveIcon(false)
 }
 
+const getPersistPayload = () => {
+  if (observer && !newDocument) {
+    const patch = jsonpatch.generate(observer)
+    return {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    }
+  }
+  return {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }
+}
+
 const persistOnServer = () => {
   if (baseUrl && authorization) {
+    const payload = getPersistPayload()
     return fetch(saveUrl, {
-      method: 'POST',
+      ...payload,
       mode: 'cors',
       headers: {
         Authorization: `Basic ${authorization}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
     })
-      .then(() => setSaveIcon(true))
+      .then(() => {
+        setSaveIcon(true)
+        newDocument = false
+      })
       .catch((e) => {
         console.error(e)
         setErrorIcon()
@@ -147,7 +167,10 @@ const retrieveFromServer = (): Promise<DataType | Record<string, never>> => {
       },
     })
       .then((response) => {
-        if (response.ok) return response.json() as Promise<DataType>
+        if (response.ok) {
+          newDocument = false
+          return response.json() as Promise<DataType>
+        }
         if (response.status === 404) return Promise.resolve({})
         throw new Error(`error: ${response.status}`)
       })
@@ -194,7 +217,10 @@ const load = () =>
       lastSaveAt.innerText = lastData?.lastSave
         ? new Date(lastData.lastSave).toLocaleString()
         : 'N/A'
-      if (!simpleMode && isLocalMoreRecent) persistOnServer()
+      if (!simpleMode) {
+        if (isLocalMoreRecent) persistOnServer()
+        observer = jsonpatch.observe(data)
+      }
     })
     .catch((err) => {
       console.error(err)
@@ -213,17 +239,13 @@ const addNewItem = () => {
 addBtn.addEventListener('click', addNewItem, false)
 
 const removeItem = (idToRemove: string) => {
-  const item = data.items.find(({ id }) => id === idToRemove)
+  const idx = data.items.findIndex(({ id }) => id === idToRemove)
+  const item = data.items[idx]
   if (
     item?.text.length === 0 ||
     confirm(`Are you sure to delete « ${item?.title} » ?`)
   ) {
-    const newData = {
-      lastIdx: 0,
-      lastSave: data.lastSave,
-      items: data.items.filter(({ id }) => id !== idToRemove),
-    }
-    data = newData
+    data.items.splice(idx, 1)
     buildList()
     save()
   }
