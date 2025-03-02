@@ -6,12 +6,6 @@ import dompurify from 'dompurify'
 import * as marked from 'marked'
 import { debounce } from './debounce'
 
-// Remove disabled on checkbox to allow edition
-const renderer = new marked.Renderer()
-renderer.checkbox = ({ checked }) =>
-  `<input type="checkbox" ${checked ? 'checked' : ''} />`
-marked.use({ renderer })
-
 const intro = document.querySelector('#intro') as HTMLDivElement
 const h2 = document.querySelector('h2') as HTMLHeadingElement
 const title = h2.querySelector('input') as HTMLInputElement
@@ -33,6 +27,14 @@ const notebook = search.replace('?notebook=', '')
 const simpleMode = search === '?simple'
 const localstorageKey = notebook ? `scratchpad-${notebook}` : 'scratchpad'
 const saveUrl = `${baseUrl}${notebook}.json`
+
+if (simpleMode) {
+  // remove disabled attribute on checkbox
+  const renderer = new marked.Renderer()
+  renderer.checkbox = ({ checked }) =>
+    `<input type="checkbox" ${checked ? 'checked' : ''} />`
+  marked.use({ renderer })
+}
 
 let editMode = false
 
