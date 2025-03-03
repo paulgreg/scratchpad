@@ -109,7 +109,7 @@ const save = () => {
   const d = new Date()
   data.lastSave = d.getTime()
   data.items[data.lastIdx] = {
-    id: uuidv4(),
+    id: data.items[data.lastIdx].id ?? uuidv4(),
     title: title.value,
     text: textarea.value,
   }
