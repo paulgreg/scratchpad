@@ -17,63 +17,69 @@
   <body>
     <div id="intro">
       <h1>Scratchpad</h1>
-      <p>
-        Scratchpad is a <abbr title="Progessive Web App">PWA</abbr> to store
-        notes. Notes can be written in
-        <a
-          href="https://www.markdownguide.org/basic-syntax/"
-          rel="noopener nofollow"
-          >Markdown</a
-        >.
-      </p>
+      <section>
+        <p>
+          Scratchpad is a <abbr title="Progessive Web App">PWA</abbr> to store
+          notes. Notes can be written in
+          <a
+            href="https://www.markdownguide.org/basic-syntax/"
+            rel="noopener nofollow"
+            >Markdown</a
+          >.
+        </p>
 
-      <p>
-        Notes will be stored on your device, in browser’s
-        <a
-          rel="noopener"
-          href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
-          >local storage</a
-        >
-        <span class="server">and on server</span>.
-      </p>
-      <form class="start" method="GET">
-        <label
-          >Notebook :
-          <input
-            type="text"
-            pattern="[a-zA-Z0-9]{1,12}"
-            required
-            maxlength="12"
-            autofocus
-            name="notebook"
-            title="Only letters and number, from 1 to 12 chars"
-            autocapitalize="off"
-          />
-        </label>
-        <input type="submit" value="go" />
-      </form>
-      <p>
-        You can also write directly without a notebook in simple mode (but only
-        saved locally)
-      </p>
-      <p class="center">
-        <a href="./?simple" class="button">Start in Simple Mode</a>
-      </p>
-      <p>
-        That application is free and open source. It’s not a commercial product,
-        only a « scratch your own itch » app. Code is available on
-        <a rel="noopener" href="https://github.com/paulgreg/scratchpad"
-          >github</a
-        >.
-      </p>
-      <p>
-        If you’re concerned about privacy and security, I encourage you to host
-        the app yourself by cloning the project on a web server.
-      </p>
-      <p>
-        More about my projects and contact informations on
-        <a href="https://paulgreg.me/">paulgreg.me</a>.
-      </p>
+        <p>
+          Notes will be stored on your device, in browser’s
+          <a
+            rel="noopener"
+            href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
+            >local storage</a
+          >
+          <span class="server">and on server</span>.
+        </p>
+        <form class="start" method="GET">
+          <label
+            >Notebook :
+            <input
+              type="text"
+              pattern="[a-zA-Z0-9]{1,12}"
+              required
+              maxlength="12"
+              autofocus
+              name="notebook"
+              title="Only letters and number, from 1 to 12 chars"
+              autocapitalize="off"
+            />
+          </label>
+          <input type="submit" value="go" />
+        </form>
+      </section>
+      <section>
+        <p>
+          You can also write directly without a notebook in simple mode (but
+          only saved in local storage)
+        </p>
+        <p class="startSimple">
+          <a href="./?simple" class="button">Start Simple Mode</a>
+        </p>
+      </section>
+      <section>
+        <p>
+          That application is free and open source. It’s not a commercial
+          product, only a « scratch your own itch » app. Code is available on
+          <a rel="noopener" href="https://github.com/paulgreg/scratchpad"
+            >github</a
+          >.
+        </p>
+        <p>
+          If you’re concerned about privacy and security, I encourage you to
+          host the app yourself by cloning the project on a web server.
+        </p>
+        <p>
+          More about my projects and contact informations on
+          <a href="https://paulgreg.me/">paulgreg.me</a>.
+        </p>
+      </section>
     </div>
     <div class="main">
       <h2>

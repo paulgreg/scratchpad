@@ -8,6 +8,9 @@ body {
   background-color: #ffefd6;
   overflow: hidden;
 }
+section {
+  margin-bottom: 1em;
+}
 .main {
   position: absolute;
   top: 0;
@@ -69,13 +72,6 @@ p {
   padding: 0.25em;
   line-height: 1.4em;
 }
-.center {
-  text-align: center;
-  margin: 1em;
-}
-.choice {
-  margin-top: 0.9em;
-}
 .start {
   padding: 8px 16px;
   font-size: 16px;
@@ -99,6 +95,9 @@ p {
   padding: 8px;
   background-color: orange;
 }
+.startSimple {
+  margin: 1em 0 2em 0;
+}
 #status {
   display: inline-block;
   margin-left: 10px;
@@ -114,7 +113,6 @@ p {
 #error {
   fill: red;
 }
-
 .hidden {
   display: none;
 }
@@ -129,7 +127,6 @@ p {
   padding: 0 0.5em;
   overflow-y: auto;
 }
-
 textarea {
   background-color: #fff7ed;
   padding: 4px;
@@ -189,7 +186,6 @@ body.list #list {
 #intro h1 {
   padding: 0.25em 0.1em;
 }
-
 #md h1 {
   margin: 0.4em 0 0.25em 0;
 }
