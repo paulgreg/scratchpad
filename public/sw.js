@@ -15,15 +15,8 @@ function fromNetwork(request, timeout) {
   return new Promise((fulfill, reject) => {
     let timeoutId
     if (timeout) timeoutId = setTimeout(reject, timeout)
-    fetch(request).then(async (response) => {
+    fetch(request).then((response) => {
       if (timeout) clearTimeout(timeoutId)
-
-      if (response.redirected && response.url.includes('/vouch/login')) {
-        const allClients = await clients.matchAll()
-        for (const client of allClients) {
-          client.postMessage({ type: 'unauthorized' })
-        }
-      }
 
       if (!response || response.status !== 200 || request.method !== 'GET') {
         return fulfill(response)

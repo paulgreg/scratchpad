@@ -212,17 +212,8 @@
     </template>
     <script type="module" src="/src/main.ts"></script>
     <script>
-      if ('serviceWorker' in navigator) {
+      if ('serviceWorker' in navigator)
         navigator.serviceWorker.register('sw.js')
-        navigator.serviceWorker.addEventListener('message', (event) => {
-          if (event.data && event.data.type === 'unauthorized') {
-            const shouldReload = confirm(
-              'Your session has expired. Do you want to reload the page ?'
-            )
-            if (shouldReload) location.reload()
-          }
-        })
-      }
     </script>
   </body>
 </html>
