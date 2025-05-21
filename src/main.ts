@@ -38,7 +38,7 @@ if (simpleMode) {
 }
 
 let editMode = false
-let newDocument = true
+let fullSave = true
 let observer: jsonpatch.Observer<DataType> | undefined
 
 let data: DataType = {
@@ -67,7 +67,7 @@ const persistToLocalStorage = () => {
 }
 
 const getPersistPayload = () => {
-  if (observer && !newDocument) {
+  if (observer && !fullSave) {
     const patch = jsonpatch.generate(observer)
     return {
       method: 'PATCH',
@@ -83,6 +83,7 @@ const getPersistPayload = () => {
 const persistOnServer = () => {
   if (baseUrl && authorization) {
     const payload = getPersistPayload()
+    fullSave = true
     return fetch(saveUrl, {
       ...payload,
       mode: 'cors',
@@ -91,9 +92,12 @@ const persistOnServer = () => {
         'Content-Type': 'application/json',
       },
     })
-      .then(() => {
+      .then((response) => {
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`)
+
         setSaveIcon(true)
-        newDocument = false
+        fullSave = false
       })
       .catch((e) => {
         console.error(e)
@@ -168,7 +172,7 @@ const retrieveFromServer = (): Promise<DataType | Record<string, never>> => {
     })
       .then((response) => {
         if (response.ok) {
-          newDocument = false
+          fullSave = false
           return response.json() as Promise<DataType>
         }
         if (response.status === 404) return Promise.resolve({})
