@@ -7,22 +7,22 @@ import * as marked from 'marked'
 import { debounce } from './debounce'
 import * as jsonpatch from 'fast-json-patch'
 
-const intro = document.querySelector('#intro') as HTMLDivElement
-const h2 = document.querySelector('h2') as HTMLHeadingElement
-const title = h2.querySelector('input') as HTMLInputElement
-const textarea = document.querySelector('textarea') as HTMLTextAreaElement
-const md = document.querySelector('#md') as HTMLDivElement
-const savingIcon = document.querySelector('#saving') as HTMLSpanElement
-const errorIcon = document.querySelector('#error') as HTMLSpanElement
-const addBtn = document.querySelector('#add') as HTMLButtonElement
-const changeBtn = document.querySelector('#change') as HTMLButtonElement
-const switchBtn = document.querySelector('#switch') as HTMLButtonElement
-const clearBtn = document.querySelector('#clear') as HTMLButtonElement
-const list = document.querySelector('#list ol') as HTMLOListElement
-const removeIcon = (
+const $intro = document.querySelector('#intro') as HTMLDivElement
+const $h2 = document.querySelector('h2') as HTMLHeadingElement
+const $title = $h2.querySelector('input') as HTMLInputElement
+const $textarea = document.querySelector('textarea') as HTMLTextAreaElement
+const $md = document.querySelector('#md') as HTMLDivElement
+const $savingIcon = document.querySelector('#saving') as HTMLSpanElement
+const $errorIcon = document.querySelector('#error') as HTMLSpanElement
+const $addBtn = document.querySelector('#add') as HTMLButtonElement
+const $changeBtn = document.querySelector('#change') as HTMLButtonElement
+const $switchBtn = document.querySelector('#switch') as HTMLButtonElement
+const $clearBtn = document.querySelector('#clear') as HTMLButtonElement
+const $list = document.querySelector('#list ol') as HTMLOListElement
+const $removeIcon = (
   document.querySelector('#removeIcon') as HTMLTemplateElement
 )?.innerHTML
-const lastSaveAt = document.querySelector('#lastSaveAt') as HTMLSpanElement
+const $lastSaveAt = document.querySelector('#lastSaveAt') as HTMLSpanElement
 const search = document.location.search || ''
 const notebook = search.replace('?notebook=', '')
 const simpleMode = search === '?simple'
@@ -109,47 +109,52 @@ const persistOnServer = () => {
 const [debouncePersistServerSave] = debounce(persistOnServer, 1500)
 const [debouncePersistLocaleSave] = debounce(persistToLocalStorage, 250)
 
+const updateTextAndSave = () => {
+  data.items[data.lastIdx] = {
+    id: data.items[data.lastIdx].id ?? uuidv4(),
+    title: $title.value,
+    text: $textarea.value,
+  }
+  save()
+}
+
 const save = () => {
   const d = new Date()
   data.lastSave = d.getTime()
-  data.items[data.lastIdx] = {
-    id: data.items[data.lastIdx].id ?? uuidv4(),
-    title: title.value,
-    text: textarea.value,
-  }
-  lastSaveAt.innerText = d.toLocaleString()
+
+  $lastSaveAt.innerText = d.toLocaleString()
   debouncePersistLocaleSave()
   if (!simpleMode) debouncePersistServerSave()
 }
 
 const [debouncedSaveIcon] = debounce(() => {
-  savingIcon?.classList.add('hidden')
-  savingIcon?.classList.remove('server')
+  $savingIcon?.classList.add('hidden')
+  $savingIcon?.classList.remove('server')
 }, 250)
 
 const setSaveIcon = (server = false) => {
-  errorIcon?.classList.add('hidden')
-  if (server) savingIcon?.classList.add('server')
-  savingIcon?.classList.remove('hidden')
+  $errorIcon?.classList.add('hidden')
+  if (server) $savingIcon?.classList.add('server')
+  $savingIcon?.classList.remove('hidden')
   debouncedSaveIcon()
 }
 
 const setErrorIcon = () => {
-  savingIcon?.classList.add('hidden')
-  errorIcon?.classList.remove('hidden')
+  $savingIcon?.classList.add('hidden')
+  $errorIcon?.classList.remove('hidden')
 }
 
-textarea?.addEventListener('keyup', save, false)
-textarea?.addEventListener('paste', save, false)
-title?.addEventListener('keyup', save, false)
-title?.addEventListener('paste', save, false)
+$textarea?.addEventListener('keyup', updateTextAndSave, false)
+$textarea?.addEventListener('paste', updateTextAndSave, false)
+$title?.addEventListener('keyup', updateTextAndSave, false)
+$title?.addEventListener('paste', updateTextAndSave, false)
 
 const setContent = (idx: number) => {
   data.lastIdx = idx
-  title.value = data.items[data.lastIdx].title
+  $title.value = data.items[data.lastIdx].title
   const text = data.items[data.lastIdx].text
-  textarea.value = text
-  md.innerHTML = dompurify.sanitize(marked.parse(text) as string)
+  $textarea.value = text
+  $md.innerHTML = dompurify.sanitize(marked.parse(text) as string)
   hideList()
   if (simpleMode || !text?.length) {
     switchToEdit()
@@ -194,14 +199,14 @@ const retrieveFromServer = (): Promise<DataType | Record<string, never>> => {
 }
 
 const enableUI = () => {
-  textarea.disabled = false
-  switchBtn.disabled = false
+  $textarea.disabled = false
+  $switchBtn.disabled = false
   if (simpleMode) {
-    h2.classList.add('simple')
+    $h2.classList.add('simple')
   } else {
-    title.disabled = false
-    addBtn.disabled = false
-    changeBtn.disabled = false
+    $title.disabled = false
+    $addBtn.disabled = false
+    $changeBtn.disabled = false
   }
 }
 
@@ -218,7 +223,7 @@ const load = () =>
       if (lastData?.items) data = lastData
       enableUI()
       setContent(data.lastIdx)
-      lastSaveAt.innerText = lastData?.lastSave
+      $lastSaveAt.innerText = lastData?.lastSave
         ? new Date(lastData.lastSave).toLocaleString()
         : 'N/A'
       if (!simpleMode) {
@@ -236,11 +241,11 @@ const addNewItem = () => {
   data.items.push({ id: uuidv4(), title: 'New note', text: '' })
   data.lastIdx = newIdx
   setContent(newIdx)
-  switchBtn.style.visibility = ''
+  $switchBtn.style.visibility = ''
   save()
 }
 
-addBtn.addEventListener('click', addNewItem, false)
+$addBtn.addEventListener('click', addNewItem, false)
 
 const removeItem = (idToRemove: string) => {
   const idx = data.items.findIndex(({ id }) => id === idToRemove)
@@ -250,6 +255,9 @@ const removeItem = (idToRemove: string) => {
     confirm(`Are you sure to delete « ${item?.title} » ?`)
   ) {
     data.items.splice(idx, 1)
+    if (data.lastIdx >= idx) {
+      data.lastIdx = 0
+    }
     buildList()
     save()
   }
@@ -261,8 +269,8 @@ const hideList = () => {
 }
 
 const emptyList = () => {
-  while (list.firstChild) {
-    list.removeChild(list.firstChild)
+  while ($list.firstChild) {
+    $list.removeChild($list.firstChild)
   }
 }
 
@@ -274,8 +282,9 @@ const buildList = () => {
     const aItem = document.createElement('a')
     aItem.innerText = title
     aItem.addEventListener('click', () => {
+      $title.disabled = false
       setContent(idx)
-      switchBtn.style.visibility = ''
+      $switchBtn.style.visibility = ''
     })
     const span = document.createElement('span')
     span.innerText = text.length ? `(${text.length} chars)` : '(empty)'
@@ -283,14 +292,14 @@ const buildList = () => {
     li.appendChild(span)
     if (addRemoveBtn) {
       const aRemove = document.createElement('a')
-      aRemove.innerHTML = removeIcon
+      aRemove.innerHTML = $removeIcon
       aRemove.classList.add('remove')
       aRemove.addEventListener('click', () => {
         removeItem(id)
       })
       li.appendChild(aRemove)
     }
-    list.appendChild(li)
+    $list.appendChild(li)
   })
   document.body.classList.add('list')
 }
@@ -298,26 +307,30 @@ const buildList = () => {
 const toggleList = () => {
   if (document.body.classList.contains('list')) {
     hideList()
-    switchBtn.style.visibility = ''
+    $title.disabled = false
+    $switchBtn.style.visibility = ''
+    setContent(data.lastIdx)
   } else {
     buildList()
-    switchBtn.style.visibility = 'hidden'
+    $title.value = 'List'
+    $title.disabled = true
+    $switchBtn.style.visibility = 'hidden'
   }
 }
 
-changeBtn.addEventListener('click', toggleList, false)
+$changeBtn.addEventListener('click', toggleList, false)
 
 const switchToEdit = () => {
-  md.style.display = 'none'
-  textarea.style.display = ''
-  textarea.focus()
+  $md.style.display = 'none'
+  $textarea.style.display = ''
+  $textarea.focus()
   editMode = true
 }
 
 const switchToMarkdown = () => {
-  textarea.style.display = 'none'
-  md.innerHTML = dompurify.sanitize(marked.parse(textarea.value) as string)
-  md.style.display = ''
+  $textarea.style.display = 'none'
+  $md.innerHTML = dompurify.sanitize(marked.parse($textarea.value) as string)
+  $md.style.display = ''
   editMode = false
 }
 
@@ -325,20 +338,20 @@ const switchBetweenMode = () => {
   if (editMode) switchToMarkdown()
   else switchToEdit()
 }
-switchBtn.addEventListener('click', switchBetweenMode, false)
+$switchBtn.addEventListener('click', switchBetweenMode, false)
 
 const clearContent = () => {
   if (confirm('clear content ?')) {
-    textarea.value = ''
-    textarea.focus()
+    $textarea.value = ''
+    $textarea.focus()
     save()
   }
 }
-clearBtn.addEventListener('click', clearContent, false)
+$clearBtn.addEventListener('click', clearContent, false)
 
 const notebookCheck = /^[a-zA-Z0-9]{1,12}$/.test(notebook)
 if (notebookCheck) {
-  intro.style.display = 'none'
+  $intro.style.display = 'none'
   load()
 } else if (baseUrl && authorization) {
   const spansServer = document.querySelectorAll('.server')
@@ -346,10 +359,10 @@ if (notebookCheck) {
 }
 
 if (simpleMode) {
-  intro.style.display = 'none'
-  addBtn.style.display = 'none'
-  changeBtn.style.display = 'none'
-  clearBtn.style.display = ''
+  $intro.style.display = 'none'
+  $addBtn.style.display = 'none'
+  $changeBtn.style.display = 'none'
+  $clearBtn.style.display = ''
 
   data.items[0].text = 'Start taking notes'
   load()
